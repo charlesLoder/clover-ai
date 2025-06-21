@@ -7,7 +7,7 @@ Add AI capabilities to Clover-IIIF using any LLM provider.
 To get started, you can use the included provider which prompts users for their Anthropic, Google, or OpenAI API key.
 
 > [!TIP]
-> To implement your own provider, see the docs
+> To implement your own provider, see the [docs](https://charlesloder.github.io/clover-ai/?path=/docs/creating-a-provider--docs)
 
 Install [Clover-IIIF](https://samvera-labs.github.io/clover-iiif/) and the plugin:
 
@@ -75,4 +75,4 @@ export VITE_IIIF_URL="<MANIFEST_URL>"
 
 ## Docs
 
-See the docs at $INSERT_DOCS_URL
+Read the [docs](https://charlesloder.github.io/clover-ai/?path=/docs/welcome--docs)
