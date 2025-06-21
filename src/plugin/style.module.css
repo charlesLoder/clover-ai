@@ -1,0 +1,71 @@
+:root {
+  /* 
+  Clover AI Design System CSS Variables
+
+  Each variable is scoped with the `--clover-ai-` prefix.
+  The defaults are set to inherit from the global CSS variables from Clover.
+  Each default value is taken from Clover.
+  */
+  --clover-ai-colors-primary: var(--colors-primary, #1a1d1e);
+  --clover-ai-colors-primaryMuted: var(--colors-primaryMuted, #26292b);
+  --clover-ai-colors-primaryAlt: var(--colors-primaryAlt, #151718);
+  --clover-ai-colors-accent: var(--colors-accent, hsl(209 100% 38.2%));
+  --clover-ai-colors-accentMuted: var(--colors-accentMuted, hsl(209 80% 61.8%));
+  --clover-ai-colors-accentAlt: var(--colors-accentAlt, hsl(209 80% 30%));
+  --clover-ai-colors-secondary: var(--colors-secondary, #ffffff);
+  --clover-ai-colors-secondaryMuted: var(--colors-secondaryMuted, #e6e8eb);
+  --clover-ai-colors-secondaryAlt: var(--colors-secondaryAlt, #c1c8cd);
+  --clover-ai-colors-error: var(--colors-error, #d43900);
+  --clover-ai-colors-errorMuted: var(--colors-errorMuted, #feded2);
+  --clover-ai-fontSizes-1: var(--fontSizes-1, 12px);
+  --clover-ai-fontSizes-2: var(--fontSizes-2, 13px);
+  --clover-ai-fontSizes-3: var(--fontSizes-3, 15px);
+  --clover-ai-fontSizes-4: var(--fontSizes-4, 17px);
+  --clover-ai-fontSizes-5: var(--fontSizes-5, 19px);
+  --clover-ai-fontSizes-6: var(--fontSizes-6, 21px);
+  --clover-ai-fontSizes-7: var(--fontSizes-7, 27px);
+  --clover-ai-fontSizes-8: var(--fontSizes-8, 35px);
+  --clover-ai-fontSizes-9: var(--fontSizes-9, 59px);
+  --clover-ai-lineHeights-1: var(--lineHeights-1, 12px);
+  --clover-ai-lineHeights-2: var(--lineHeights-2, 13px);
+  --clover-ai-lineHeights-3: var(--lineHeights-3, 15px);
+  --clover-ai-lineHeights-4: var(--lineHeights-4, 17px);
+  --clover-ai-lineHeights-5: var(--lineHeights-5, 19px);
+  --clover-ai-lineHeights-6: var(--lineHeights-6, 21px);
+  --clover-ai-lineHeights-7: var(--lineHeights-7, 27px);
+  --clover-ai-lineHeights-8: var(--lineHeights-8, 35px);
+  --clover-ai-lineHeights-9: var(--lineHeights-9, 59px);
+  --clover-ai-sizes-1: var(--sizes-1, 5px);
+  --clover-ai-sizes-2: var(--sizes-2, 10px);
+  --clover-ai-sizes-3: var(--sizes-3, 15px);
+  --clover-ai-sizes-4: var(--sizes-4, 20px);
+  --clover-ai-sizes-5: var(--sizes-5, 25px);
+  --clover-ai-sizes-6: var(--sizes-6, 35px);
+  --clover-ai-sizes-7: var(--sizes-7, 45px);
+  --clover-ai-sizes-8: var(--sizes-8, 65px);
+  --clover-ai-sizes-9: var(--sizes-9, 80px);
+  --clover-ai-space-1: var(--space-1, 5px);
+  --clover-ai-space-2: var(--space-2, 10px);
+  --clover-ai-space-3: var(--space-3, 15px);
+  --clover-ai-space-4: var(--space-4, 20px);
+  --clover-ai-space-5: var(--space-5, 25px);
+  --clover-ai-space-6: var(--space-6, 35px);
+  --clover-ai-space-7: var(--space-7, 45px);
+  --clover-ai-space-8: var(--space-8, 65px);
+  --clover-ai-space-9: var(--space-9, 80px);
+  --clover-ai-radii-1: var(--radii-1, 4px);
+  --clover-ai-radii-2: var(--radii-2, 6px);
+  --clover-ai-radii-3: var(--radii-3, 8px);
+  --clover-ai-radii-4: var(--radii-4, 12px);
+  --clover-ai-radii-round: var(--radii-round, 50%);
+  --clover-ai-radii-pill: var(--radii-pill, 9999px);
+  --clover-ai-transitions-all: var(--transitions-all, all 200ms cubic-bezier(0.16, 1, 0.3, 1));
+  --clover-ai-zIndices-1: var(--zIndices-1, 100);
+  --clover-ai-zIndices-2: var(--zIndices-2, 200);
+  --clover-ai-zIndices-3: var(--zIndices-3, 300);
+  --clover-ai-zIndices-4: var(--zIndices-4, 400);
+  --clover-ai-zIndices-max: var(--zIndices-max, 999);
+
+  /* These are unique to Clover AI */
+  --golden-ratio: 1.618;
+}

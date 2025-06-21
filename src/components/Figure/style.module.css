@@ -1,0 +1,44 @@
+.figure {
+  margin: 0;
+  display: grid;
+
+  /* configurable styles */
+  --figure-border-radius: var(--clover-ai-radii-2);
+  --figure-caption-color: var(--clover-ai-colors-primaryMuted);
+  --figure-caption-font-size: var(--clover-ai-sizes-2);
+  --figure-img-object-fit: cover;
+
+  img {
+    aspect-ratio: 1 / 1;
+    background-color: color-mix(in srgb, var(--clover-ai-colors-secondaryMuted) 20%, transparent);
+    object-fit: var(--figure-img-object-fit);
+    border-radius: var(--figure-border-radius);
+
+    &[data-objectfit="fill"] {
+      --figure-img-object-fit: fill;
+    }
+
+    &[data-objectfit="contain"] {
+      --figure-img-object-fit: contain;
+    }
+
+    &[data-objectfit="none"] {
+      --figure-img-object-fit: none;
+    }
+
+    &[data-objectfit="scale-down"] {
+      --figure-img-object-fit: scale-down;
+    }
+  }
+
+  figcaption {
+    text-align: end;
+    font-style: italic;
+    white-space: pre-wrap;
+    font-size: var(--figure-caption-font-size);
+    color: var(--figure-caption-color);
+    width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}

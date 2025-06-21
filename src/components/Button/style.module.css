@@ -1,0 +1,132 @@
+.button {
+  cursor: pointer;
+  outline: none;
+  transition: var(--clover-ai-transitions-all);
+  font-weight: 500;
+  border-width: calc(var(--clover-ai-sizes-1) / 1.618);
+  border-style: solid;
+
+  /* configurable styles */
+  --button-border-radius: var(--clover-ai-sizes-2);
+  border-radius: var(--button-border-radius);
+
+  --button-background-color: var(--clover-ai-colors-accentAlt);
+  background-color: var(--button-background-color);
+
+  --button-border-color: var(--clover-ai-colors-accentAlt);
+  border-color: var(--button-border-color);
+
+  --button-color: var(--clover-ai-colors-secondary);
+  color: var(--button-color);
+
+  --button-box-shadow-color: color-mix(in srgb, var(--button-background-color) 10%, transparent);
+  --button-box-shadow: 0 0 0 var(--clover-ai-sizes-1) var(--button-box-shadow-color);
+
+  &:focus,
+  &:hover {
+    --button-border-color: var(--clover-ai-colors-accentMuted);
+    box-shadow: var(--button-box-shadow);
+  }
+}
+
+/* Size variants */
+.button[data-size="small"] {
+  padding: var(--clover-ai-sizes-1) var(--clover-ai-sizes-2);
+  --button-border-radius: var(--clover-ai-sizes-1);
+  font-size: var(--clover-ai-sizes-3);
+}
+
+.button[data-size="medium"] {
+  padding: var(--clover-ai-sizes-2) var(--clover-ai-sizes-3);
+  font-size: var(--clover-ai-sizes-3);
+}
+
+.button[data-size="large"] {
+  --button-border-radius: var(--clover-ai-sizes-3);
+  padding: var(--clover-ai-sizes-3) var(--clover-ai-sizes-4);
+  font-size: var(--clover-ai-sizes-4);
+}
+
+/* Style variants */
+.button[data-variant="secondary"] {
+  --button-color: var(--clover-ai-colors-primary);
+  --button-background-color: var(--clover-ai-colors-secondaryMuted);
+  --button-border-color: var(--clover-ai-colors-secondaryAlt);
+
+  &:focus,
+  &:hover {
+    --button-background-color: var(--clover-ai-colors-secondaryAlt);
+  }
+}
+
+.button[data-variant="ghost"] {
+  --button-background-color: transparent;
+  --button-color: inherit;
+
+  &:focus,
+  &:hover {
+    --button-background-color: color-mix(
+      in srgb,
+      var(--clover-ai-colors-accentMuted) 10%,
+      transparent
+    );
+    --button-border-color: var(--clover-ai-colors-accentAlt);
+  }
+}
+
+.button[data-variant="danger"] {
+  --button-background-color: var(--clover-ai-colors-error);
+  --button-border-color: var(--clover-ai-colors-error);
+
+  &:focus,
+  &:hover {
+    --button-border-color: var(--clover-ai-colors-errorMuted);
+  }
+}
+
+/* Shape variants */
+.button[data-shape="circle"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* circled do not need padding, but get set width/height */
+  padding: 0;
+  --button-border-radius: 50%;
+  width: calc(var(--clover-ai-sizes-3) + var(--clover-ai-sizes-2));
+  height: calc(var(--clover-ai-sizes-3) + var(--clover-ai-sizes-2));
+
+  &[data-size="medium"] {
+    width: calc(var(--clover-ai-sizes-4) + var(--clover-ai-sizes-3));
+    height: calc(var(--clover-ai-sizes-4) + var(--clover-ai-sizes-3));
+  }
+
+  &[data-size="large"] {
+    width: calc(var(--clover-ai-sizes-5) + var(--clover-ai-sizes-4));
+    height: calc(var(--clover-ai-sizes-5) + var(--clover-ai-sizes-4));
+  }
+}
+
+/* State variants */
+.button:disabled,
+.button[data-state="loading"] {
+  cursor: not-allowed;
+  --button-background-color: var(--clover-ai-colors-secondaryAlt);
+  --button-border-color: var(--clover-ai-colors-secondaryMuted);
+
+  &:focus,
+  &:hover {
+    --button-border-color: var(--clover-ai-colors-secondaryMuted);
+  }
+}
+
+/* Error state */
+.button[data-state="error"] {
+  --button-color: var(--clover-ai-colors-error);
+  --button-border-color: var(--clover-ai-colors-errorMuted);
+  --button-background-color: var(--clover-ai-colors-errorMuted);
+
+  &:focus,
+  &:hover {
+    --button-border-color: var(--clover-ai-colors-error);
+  }
+}

@@ -1,0 +1,42 @@
+.dialog[open] {
+  position: unset;
+  display: grid;
+  grid-template-rows: auto; /* Single row now */
+  grid-template-columns: 1fr auto;
+  border: none;
+  padding: var(--clover-ai-sizes-5);
+  border-radius: var(--clover-ai-radii-4);
+
+  /* configurable styles */
+  width: var(--dialog-width, revert);
+  transform: var(--dialog-position, revert);
+
+  .contentContainer {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  > button {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: start; /* Align to top of the row */
+  }
+}
+
+.dialog[open][data-width="stretched"] {
+  --dialog-width: max(300px, 800px);
+}
+
+.dialog[open][data-width="full_screen"] {
+  --dialog-width: 100%;
+}
+
+.dialog[open][data-position="visual_center"] {
+  margin: 0;
+  position: relative;
+  left: 50%;
+  translate: -50% 0;
+  --dialog-position: translateY(10vh);
+}

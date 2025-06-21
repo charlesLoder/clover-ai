@@ -1,0 +1,174 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Creating a provider" />
+
+# Creating a provider
+
+This document provides a step-by-step guide on how to pass messages from Clover AI to a custom LLM provider.
+
+In this guide, we will:
+
+- create a custom provider that extends the `BaseProvider` class
+- create an acknowledgment screen that requires user interaction before proceeding
+- send messages to a mock LLM provider and return a response
+
+## Step 1: Create a custom provider
+
+To create a custom provider, we need to extend the `BaseProvider` class.
+
+This class provides the necessary methods and properties to interact with Clover AI.
+
+```typescript
+// my-custom-provider.tsx
+import { BaseProvider } from "clover-ai";
+
+export class MyCustomProvider extends BaseProvider {
+  #user_accepted = false;
+  constructor() {
+    super();
+    super.status = "initializing";
+  }
+
+  get status() {
+    return this.#user_accepted ? "ready" : "initializing";
+  }
+}
+```
+
+By setting the `status` property to `"initializing"` in the constructor, we indicate that the provider is in the process of being set up.
+
+We also define a getter for the `status` property that returns `"ready"` if the user has accepted the terms, or `"initializing"` otherwise.
+
+This will allow `MyCustomProvider` to perform any setup logic like render a component when the status is `"initializing"`.
+
+## Step 2: Create an acknowledgment screen
+
+Next, we create an acknowledgment screen that requires user interaction before proceeding.
+
+```tsx
+// my-custom-provider.tsx
+import { BaseProvider } from "clover-ai";
+import { Heading, Button } from "clover-ai/components";
+
+export class MyCustomProvider extends BaseProvider {
+  #user_accepted = false;
+  constructor() {
+    super();
+    super.status = "initializing";
+  }
+
+  get status() {
+    return this.#user_accepted ? "ready" : "initializing";
+  }
+
+  // provided by BaseProvider
+  SetupComponent() {
+    const handleClick = () => {
+      this.#user_accepted = true;
+
+      // dispatch a message to Clover AI updating the provider with the new status
+      this.dispatch({
+        type: "updateProvider",
+        provider: this,
+      });
+    };
+
+    return (
+      <div>
+        <Heading level={"h3"}>Welcome to My Custom Provider</Heading>
+        <p>Please acknowledge that you won't use this tool for evil.</p>
+        <Button onClick={handleClick} type="button" variant="primary">
+          I won't
+        </Button>
+      </div>
+    );
+  }
+}
+```
+
+The provider class has access to the plugin's `dispatch` method, which allows it to send messages to Clover AI.
+
+When the user clicks the button, we set `#user_accepted` to `true` and dispatch an `updateProvider` message to Clover AI with the updated provider instance.
+
+This will trigger Clover AI to re-render the provider with the new status.
+
+Note that we can use components from Clover AI, such as `Heading` and `Button` to maintain a consistent look and feel with the rest of the application.
+
+## Step 3: Send messages to a mock LLM provider
+
+Finally, we can send messages to a mock LLM provider and return a response.
+
+```tsx
+// my-custom-provider.tsx
+import { BaseProvider } from "clover-ai";
+import { Heading, Button } from "clover-ai/components";
+import { Message } from "clover-ai/types";
+
+export class MyCustomProvider extends BaseProvider {
+  #user_accepted = false;
+  constructor() {
+    super();
+    super.status = "initializing";
+  }
+
+  get status() {
+    return this.#user_accepted ? "ready" : "initializing";
+  }
+
+  // provided by BaseProvider
+  SetupComponent() {
+    const handleClick = () => {
+      this.#user_accepted = true;
+      // update the Plugin state with the modified provider
+      this.update_plugin_provider(this);
+    };
+
+    return (
+      <div>
+        <Heading level={"h3"}>Welcome to My Custom Provider</Heading>
+        <p>Please acknowledge that you won't use this tool for evil.</p>
+        <Button onClick={handleClick} type="button" variant="primary">
+          I won't
+        </Button>
+      </div>
+    );
+  }
+
+  async send_messages(messagesmessages: Message[], conversationHistory: Message[]): Promise<void> {
+    this.set_conversation_state("assistant_responding");
+
+    const mockWebSocket = new WebSocket("ws://mock-websocket-server");
+
+    mockWebSocket.onopen = () => {
+      mockWebSocket.send(JSON.stringify([...conversationHistory, ...messagesmessages]));
+    };
+
+    let messageResponse = "";
+    mockWebSocket.onmessage = (event) => {
+      const response = JSON.parse(event.data);
+      if (response.text === "llm_end") {
+        const assistantMessage: Message = {
+          role: "assistant",
+          content: { type: "text", content: messageResponse },
+        };
+        this.add_messages([assistantMessage]);
+        this.set_conversation_state("idle");
+        return;
+      }
+      messageResponse += response.text;
+    };
+  }
+}
+```
+
+In this step, we implement the `send_messages` method, which is responsible for sending messages to the mock LLM provider.
+
+First, we set the conversation state to `"assistant_responding"` to indicate that the assistant is processing the request.
+
+Next, we create a WebSocket connection to a mock server (you can replace this with your actual LLM provider's WebSocket URL).
+
+When the WebSocket connection is opened, we send the conversation history and the new messages to the server.
+
+Because Clover AI does not support streaming responses, we accumulate the response text in the `messageResponse` variable until we receive a message indicating that the LLM has finished responding (in this case, when the text is `"llm_end"`).
+
+Finally, we create an assistant message with the accumulated response text and add it to the conversation history, then set the conversation state back to `"idle"`.

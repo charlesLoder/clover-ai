@@ -1,0 +1,55 @@
+.panelWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  /* configurable styles */
+  --panel-wrapper-inline-start-padding: var(--clover-ai-sizes-5);
+  --panel-wrapper-inline-end-padding: var(--clover-ai-sizes-5);
+  padding-inline: var(--panel-wrapper-inline-start-padding) var(--panel-wrapper-inline-end-padding);
+
+  --panel-wrapper-block-start-padding: var(--clover-ai-sizes-5);
+  --panel-wrapper-block-end-padding: 0;
+  padding-block: var(--panel-wrapper-block-start-padding) var(--panel-wrapper-block-end-padding);
+
+  gap: var(--sizes-2, 0.75rem);
+}
+
+.panelWrapper,
+.panelWrapper *,
+.panelWrapper *::after,
+.panelWrapper *::before {
+  box-sizing: border-box;
+}
+
+/* 
+* 🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀
+* Override Clover styling
+* 🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀🍀
+*/
+
+/* When the panelWrapper is open, update the information panel */
+[data-testid="information-panel"]:has([data-state="active"][role="tabpanel"] .panelWrapper) {
+  box-sizing: border-box;
+  mask-image: none;
+
+  /* remove the scrollbar on this element */
+  > div:nth-child(2) {
+    overflow-y: unset;
+  }
+
+  /* 
+  * A margin-top is added on smaller sizes, obscuring the bottom of the panelWrapper and causing the ChatInput to overflow.
+  * This is a workaround to ensire the ChatInput is visible and not cut off,
+  * without affecting the styling of the information panel when other panels are open.
+  */
+  @media (max-width: 767px) {
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* make it full height */
+[data-state="active"][role="tabpanel"]:has(.panelWrapper) {
+  padding: 0;
+  height: 100%;
+}

@@ -1,0 +1,14 @@
+.pluginButton {
+  width: 2rem;
+  margin: 0px 0px 0px 0.618rem;
+  cursor: pointer;
+  border: 0;
+  border-radius: 100%;
+  color: var(--colors-secondary, #000);
+  background-color: var(--colors-primary, #fff);
+
+  &:hover {
+    border-color: var(--colors-accent);
+    background-color: var(--colors-accent);
+  }
+}

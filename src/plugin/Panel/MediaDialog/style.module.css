@@ -1,0 +1,27 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.subtitle {
+  margin: 0.25rem 0 1.5rem 0;
+  font-size: var(--clover-ai-sizes-3);
+  font-style: italic;
+}
+
+.contentContainer {
+  container-name: content-container;
+  container-type: inline-size;
+}
+
+.content {
+  /* display: grid; */
+  /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
+  display: flex;
+  gap: var(--clover-ai-sizes-2);
+
+  figcaption {
+    --figure-caption-font-size: var(--clover-ai-sizes-3);
+  }
+}

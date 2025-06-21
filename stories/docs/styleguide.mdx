@@ -1,0 +1,417 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Style guide" />
+
+# Style Guide
+
+This document outlines the coding conventions and best practices to be followed when working on and contributing to the Clover AI project.
+
+It can be used as context for agents as well.
+
+## TypeScript
+
+Avoid `any` unless absolutely necessary.
+
+Global TypeScript type definitions are in `src/types.d.ts`.
+
+Component-specific types can be defined within the component file.
+
+## React
+
+These styles are for all components, not just those in `src/components`.
+
+### State
+
+App state is handled globally using context:
+
+```typescript
+import { usePlugin } from "@context";
+```
+
+### File Structure
+
+Each component resides in its own directory.
+
+The directory name should be `PascalCase` (e.g., `MyComponent`), and the main component file should be `index.tsx`.
+
+Styles specific to the component should be in `style.module.css` within the component's directory.
+
+Tests exist alongside the component.
+
+Sub-components or related utility files can also be placed within the component's directory.
+
+### Internal structure
+
+Components should follow this structure.
+
+#### Props
+
+##### Naming
+
+Prop names should be clear and descriptive, using `camelCase`.
+
+Callback prop names should be prefixed with `on` and followed by a verb (e.g., `onSelectionChange`).
+
+**Example:**
+
+```typescript
+export const ImageSelect: React.FC<ImageSelectProps> = ({
+  initialState,
+  onSelectionChange, // use `on` prefix for callbacks
+  ...figureProps // camelCase
+}) => {
+  // component code
+};
+```
+
+##### Non-boolean Props for State
+
+Prefer non-boolean props for state.
+
+This prevents "impossible states" (e.g. where `isLoading` is `true` and `isError` is also `true`)
+
+**Example:**
+
+```typescript
+// src/plugin/components/Button/index.tsx
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  shape?: "pill" | "circle";
+  size?: "small" | "medium" | "large";
+  state?: "idle" | "loading" | "error"; // Non-boolean prop for state
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+}
+
+export const Button: FC<ButtonProps> = ({
+  state = "idle",
+  // ... other props
+  ...props
+}) => {
+  return (
+    <button
+      {...props}
+      // ... other attributes
+      data-shape={shape} // Consumed by CSS
+      disabled={state === "loading" || props.disabled}
+    >
+      {/* ... */}
+    </button>
+  );
+};
+```
+
+##### Props as interaces
+
+Props are defined as a separate `interface` that extends the appropriate HTML element props:
+
+```typescript
+// src/plugin/components/Button/index.tsx
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  // Component-specific props here
+}
+```
+
+#### Component definition
+
+use `const` with explicit typing:
+
+```typescript
+// src/plugin/components/Button/index.tsx
+
+export const Button: FC<ButtonProps> = ({
+  // Destructure props with defaults
+  variant = "primary",
+  ...props
+}) => {
+  // Component logic here
+};
+```
+
+#### Exports
+
+Export both the component and its props interface for reusability:
+
+```typescript
+// src/plugin/components/Button/index.tsx
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  // Component-specific props here
+}
+
+export const Button: FC<ButtonProps> = ({
+  // Destructure props with defaults
+  variant = "primary",
+  ...props
+}) => {
+  // Component logic here
+};
+```
+
+### Presentational vs. Container Components
+
+#### Presentational Components
+
+Prefer presentational components when possible.
+
+Presentational components have no (or very limited) internal state, and do not update the global state.
+
+Generally, the props are passed down to `data-` attributes determine the components styling via CSS (see more under #css)
+
+```typescript
+// src/plugin/components/Button/index.tsx
+
+export const Button: FC<ButtonProps> = ({
+  variant = "primary",
+  size = "medium",
+  shape = "pill",
+  state = "idle",
+  children,
+  disabled,
+  ...props
+}) => {
+  return (
+    <button
+      {...props}
+      className={styles.button}
+      data-loading={state === "loading"}
+      data-shape={shape}
+      data-size={size}
+      data-variant={variant}
+      disabled={state === "loading" || disabled}
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+See `Button`, `Heading`, `Dialog` for more complete examples.
+
+Though a presentational component may have internal , it should not modify the global state, instead passing that state updwards through callbacks:
+
+```typescript
+// src/plugin/components/ImageSelect/index.tsx
+
+export const ImageSelect: React.FC<ImageSelectProps> = ({
+  initialState,
+  onSelectionChange,
+  ...figureProps
+}) => {
+  // internal state for the component
+  const [internalState, setInternalState] = useState(state);
+
+  const handleClick = () => {
+    switch (internalState) {
+      case "disabled":
+        break;
+      case "selected":
+        setInternalState("unselected");
+        // callback to pass state up
+        onSelectionChange?.(false);
+        break;
+      case "unselected":
+        setInternalState("selected");
+        onSelectionChange?.(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  return (
+    <button className={styles.container} data-state={internalState} onClick={handleClick}>
+      <Figure {...figureProps} />
+      <div className={styles.overlay} data-state={internalState} />
+      <div className={styles.checkmark} data-state={internalState}>
+        ✓
+      </div>
+    </button>
+  );
+};
+```
+
+#### Container Components
+
+Container components focus on how things work (data fetching, state management, logic), and render corresponding presentational components, passing props handling callbacks, and modifying the global state.
+
+```tsx
+export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
+  const { dispatch, state } = usePlugin();
+  // ...
+
+  return (
+    <PanelWrapper>
+      <Heading level="h4">Chat about {itemTitle}</Heading>
+      <MessagesContainer messages={state.messages} />
+      {state.conversationState === "assistant_responding" && (
+        <Message
+          key={`message-loading`}
+          message={{
+            role: "assistant",
+            content: { type: "text", content: "Thinking..." },
+          }}
+        />
+      )}
+      <MediaDialog />
+      <ChatInput />
+    </PanelWrapper>
+  );
+}
+```
+
+## CSS & Styling
+
+Use CSS Modules (`style.module.css`) for component-specific styles. This ensures styles are scoped locally to the component and avoids naming conflicts.
+
+Import styles: `import styles from './style.module.css';` and apply styles: `<div className={styles.myClass}>...</div>`
+
+```typescript
+// src/plugin/components/Button/index.tsx
+
+import styles from "./style.module.css";
+
+export const Button: FC<ButtonProps> = (
+  // ... props
+  children,
+  ...props
+}) => {
+  return (
+    <button
+      {...props}
+      className={styles.button} // Applying style from CSS Module
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+```css
+/* src/plugin/components/Button/style.module.css */
+
+.button {
+  cursor: pointer;
+}
+```
+
+The only global styles should be custom properties (i.e. css variables) in `src/plugin/style.module.css`
+
+### Naming
+
+Use `camelCase` for class names within CSS Modules.
+
+```css
+/* src/plugin/components/ChatInput/SelectedMedia/style.module.css */
+.selectedMedia {
+  display: grid;
+  ...
+}
+```
+
+_This makes importing styles into Typescript easier._
+
+### Layout
+
+Prefer `grid` and `flexbox` over setting `margin` and `position`.
+
+### Custom properties (variables)
+
+This project liberally uses custom properties (variables) for its design system.
+
+#### Globally
+
+The root of the plugin contains variables that can be used throughout the application.
+
+```css
+/* src/plugin/style.module.css */
+
+:root {
+  --clover-ai-colors-primary: var(--colors-primary, #1a1d1e);
+  --clover-ai-colors-primaryMuted: var(--colors-primaryMuted, #26292b);
+  /* . . .  */
+}
+```
+
+Properties are inherited from Clover, and then rescoped to the plugin.
+
+#### Component level
+
+Within a component, only use `--clover-ai` variables
+
+```css
+/* src/plugin/components/Dialog/style.module.css */
+
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  padding: var(--clover-ai-sizes-5);
+  /* . . .  */
+}
+```
+
+When creating variants for components:
+
+1/) Variant values should be passed to `data-` props; do not use classes for variants.
+
+```typescript
+// ❌ wrong
+export const Button: FC<ButtonProps> = ({
+  variant = "primary",
+}) => {
+  return (
+    <button
+      className={`${styles.button} ${variant}`}
+    >
+      {children}
+    </button>
+  )
+}
+
+// ✅ right
+export const Button: FC<ButtonProps> = ({
+  variant = "primary",
+}) => {
+  return (
+    <button
+      className={styles.button}
+      data-variant={variant}
+    >
+      {children}
+    </button>
+  )
+}
+```
+
+2\) Configurable styles should be rescoped and changed within variants.
+
+```css
+/* ❌ wrong */
+.button {
+  background-color: var(--clover-ai-colors-accentAlt);
+}
+
+.button[data-variant="ghost"] {
+  background-color: transparent;
+}
+
+/* ✅ right */
+.button {
+  /* rescope the variable using the component name */
+  --button-background-color: var(--clover-ai-colors-accentAlt);
+  background-color: var(--button-background-color);
+}
+
+/* variants are determined via the `data-` attribute */
+.button[data-variant="ghost"] {
+  /* reassign the variable value */
+  --button-background-color: transparent;
+}
+```
+
+## Provider
+
+The `BaseProvider` follows mostly the same rules outlined above, with one main exception — is uses `snake_case` for variables and method names.
+
+This provides a hint while working in code if you are dealing with the provider or the plugin.

@@ -1,0 +1,19 @@
+.textContent {
+  --text-content-color: var(--clover-ai-colors-primary);
+  color: var(--text-color);
+  --text-content-background-color: transparent;
+  background-color: var(--text-content-background-color);
+  --text-content-padding: 0;
+  padding: var(--text-content-padding);
+  --text-content-width: 100%;
+  width: var(--text-content-width);
+  --text-content-border-radius: 0;
+  border-radius: var(--text-content-border-radius);
+}
+.textContent[data-role="user"] {
+  --text-color: var(--clover-ai-colors-secondary);
+  --text-content-background-color: var(--clover-ai-colors-accentAlt);
+  --text-content-padding: 0.5rem 1rem;
+  --text-content-width: fit-content;
+  --text-content-border-radius: 0.5rem;
+}

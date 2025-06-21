@@ -1,0 +1,12 @@
+.messagesContainer {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: var(--clover-ai-sizes-3);
+  scrollbar-color: var(--clover-ai-colors-secondaryAlt) transparent;
+  overflow-y: scroll;
+
+  [data-role="user"] {
+    align-self: flex-end;
+  }
+}

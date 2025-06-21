@@ -1,0 +1,15 @@
+.selectedMedia {
+  display: grid;
+
+  > * {
+    grid-area: 1/1;
+  }
+
+  > button {
+    width: fit-content;
+    height: fit-content;
+    transform-origin: bottom right;
+    translate: 40% 40%;
+    transform: scale(0.6);
+  }
+}

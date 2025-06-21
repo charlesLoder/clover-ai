@@ -1,0 +1,53 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Welcome" />
+
+# Welcome 👋
+
+The `clover-ai` plugin let's you extend the Clover-IIIF viewer so users can chat with AI tools about what they're viewing.
+
+## 🚀 Quick start
+
+Install [Clover-IIIF](https://samvera-labs.github.io/clover-iiif/) and the plugin:
+
+```bash
+npm install @samvera/clover-iiif clover-ai
+```
+
+Add the plugin to the `Viewer` component:
+
+```tsx
+import Viewer from "@samvera/clover-iiif/viewer";
+import { PluginControl, PluginPanel } from "clover-ai";
+import { UserTokenProvider } from "clover-ai/provider";
+
+<Viewer
+  iiifContent={
+    "https://api.dc.library.northwestern.edu/api/v2/works/8a833741-74a8-40dc-bd1d-c416a3b1bb38?as=iiif"
+  }
+  plugins={[
+    {
+      id: "clover-ai",
+      imageViewer: {
+        controls: {
+          component: PluginControl,
+        },
+      },
+      informationPanel: {
+        component: PluginPanel,
+        label: {
+          en: ["AI Chat"],
+        },
+        componentProps: {
+          //  use the included provider, or implement your own
+          provider: new UserTokenProvider(),
+        },
+      },
+    },
+  ]}
+/>;
+```
+
+This will: - Add a new "AI Chat" tab to the information panel - Prompt users to select a provider — Anthropic, Google, or OpenAI — and enter their API key
+
+To learn more about creating a custom provider, see [Creating a provider](./?path=/docs/creating-a-provider--docs)

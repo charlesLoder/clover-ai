@@ -1,0 +1,60 @@
+/* Container styles */
+.container {
+  position: relative;
+  cursor: pointer;
+  border-radius: var(--clover-ai-radii-3);
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+  overflow: hidden;
+  width: fit-content;
+  height: fit-content;
+  padding: var(--clover-ai-sizes-1);
+  background-color: transparent;
+  font-family: unset;
+}
+
+.container[data-state="selected"] {
+  border-color: var(--clover-ai-colors-accent);
+}
+
+.container[data-state="disabled"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Overlay styles */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  transition: background-color 0.2s ease-in-out;
+  pointer-events: none;
+}
+
+.overlay[data-state="selected"] {
+  background-color: rgba(0, 102, 204, 0.1);
+}
+
+/* Checkmark styles */
+.checkmark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--clover-ai-colors-accent);
+  color: var(--clover-ai-colors-secondary);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.checkmark[data-state="selected"] {
+  display: flex;
+}
