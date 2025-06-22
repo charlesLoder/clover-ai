@@ -5,7 +5,7 @@ import type { Plugin as CloverPlugin } from "@samvera/clover-iiif";
 import { getLabelByUserLanguage } from "@utils";
 import { useEffect, useState } from "react";
 import { BaseProvider } from "../base_provider";
-import "../style.module.css";
+import "../style.css";
 import { ChatInput } from "./ChatInput";
 import { MediaDialog } from "./MediaDialog";
 import { PanelWrapper } from "./PanelWrapper";

@@ -1,0 +1,51 @@
+import Viewer from "@samvera/clover-iiif/viewer";
+import { Meta } from "@storybook/addon-docs/blocks";
+import { PluginControl, PluginPanel } from "../../src/plugin/index";
+import { UserTokenProvider } from "../../src/provider/index";
+
+<Meta title="Example" />
+
+# Example
+
+<Viewer
+  iiifContent={
+    "https://api.dc.library.northwestern.edu/api/v2/works/8a833741-74a8-40dc-bd1d-c416a3b1bb38?as=iiif"
+  }
+  plugins={[
+    {
+      id: "clover-ai",
+      imageViewer: {
+        controls: {
+          component: PluginControl,
+        },
+      },
+      informationPanel: {
+        component: PluginPanel,
+        label: {
+          en: ["AI Chat"],
+        },
+        componentProps: {
+          provider: new UserTokenProvider(),
+        },
+      },
+    },
+  ]}
+/>
+;
+
+<style>
+  {`
+    .sbdocs-wrapper {
+        div:first-child {
+            max-width: unset;
+        }
+    }
+
+    /* This is a hack to fix the text color in the user message because of Storybook styling */
+    div[data-role="user"] {
+        > * {
+            color: var(--clover-ai-colors-secondary);
+        }
+    }
+`}
+</style>
