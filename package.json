@@ -47,7 +47,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "peerDependencies": {
     "@samvera/clover-iiif": "^2.16.8",
