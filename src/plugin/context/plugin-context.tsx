@@ -110,7 +110,8 @@ function pluginReducer(
     case "addMessages":
       return { ...state, messages: [...state.messages, ...action.messages] };
     case "clearMessages":
-      return { ...state, messages: [] };
+      // Clear all messages except system messages
+      return { ...state, messages: [...state.messages.filter((m) => m.role === "system")] };
     case "updateProvider":
       if (!action.provider) {
         throw new Error("Provider cannot be undefined in updateProvider action");

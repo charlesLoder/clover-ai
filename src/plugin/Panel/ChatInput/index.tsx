@@ -1,6 +1,6 @@
 import { Button, Textarea } from "@components";
 import { usePlugin } from "@context";
-import { Add, ArrowUp } from "@icons";
+import { Add, ArrowUp, Clear } from "@icons";
 import { MediaContent, UserMessage } from "@types";
 import type { FC } from "react";
 import { useState } from "react";
@@ -12,6 +12,10 @@ export const ChatInput: FC = () => {
   const [textareaError, setTextareaError] = useState("");
 
   const [formState, setFormState] = useState<"idle" | "loading" | "error" | "success">("idle");
+
+  function clearConversation() {
+    dispatch({ type: "clearMessages" });
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -99,15 +103,24 @@ export const ChatInput: FC = () => {
         </div>
         <div className="controls">
           <Button
+            aria-label="Clear conversation"
+            shape="circle"
+            size="small"
+            state={formState !== "success" ? formState : undefined}
+            title="Clear conversation"
+            type="button"
+            onClick={clearConversation}
+          >
+            <Clear />
+          </Button>
+          <Button
             aria-label="Add media"
             shape="circle"
             size="small"
             state={formState !== "success" ? formState : undefined}
             title="Add media"
             type="button"
-            onClick={() => {
-              openDialog();
-            }}
+            onClick={openDialog}
           >
             <Add />
           </Button>
