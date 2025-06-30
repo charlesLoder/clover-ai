@@ -23,8 +23,9 @@ interface AddMessageAction {
   type: "addMessages";
 }
 
-interface ClearMessagesAction {
-  type: "clearMessages";
+interface ClearConversation {
+  /** Clear the conversation but not the system prompt */
+  type: "clearConversation";
 }
 
 interface SetActiveCanvasAction {
@@ -70,7 +71,7 @@ interface UpdateProviderAction {
 export type PluginContextActions =
   | SystemPromptAction
   | AddMessageAction
-  | ClearMessagesAction
+  | ClearConversation
   | UpdateProviderAction
   | SetConversationState
   | SetManifestAction
@@ -117,7 +118,7 @@ function pluginReducer(
       setMessagesToStorage(newMessages);
       return { ...state, messages: newMessages };
     }
-    case "clearMessages": {
+    case "clearConversation": {
       // Clear all messages except system messages
       const newMessages = [...state.messages.filter((m) => m.role === "system")];
       setMessagesToStorage(newMessages);

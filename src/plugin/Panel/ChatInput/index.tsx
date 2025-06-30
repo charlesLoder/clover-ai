@@ -14,7 +14,7 @@ export const ChatInput: FC = () => {
   const [formState, setFormState] = useState<"idle" | "loading" | "error" | "success">("idle");
 
   function clearConversation() {
-    dispatch({ type: "clearMessages" });
+    dispatch({ type: "clearConversation" });
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
