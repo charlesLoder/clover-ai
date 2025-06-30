@@ -1,5 +1,6 @@
 import type { Canvas, Manifest } from "@iiif/presentation-3";
 import type { ConversationState, Media, Message } from "@types";
+import { loadMessagesFromStorage, setMessagesToStorage } from "@utils";
 import type { Viewer } from "openseadragon";
 import type { Dispatch } from "react";
 import { createContext, useContext, useReducer } from "react";
@@ -22,8 +23,9 @@ interface AddMessageAction {
   type: "addMessages";
 }
 
-interface ClearMessagesAction {
-  type: "clearMessages";
+interface ClearConversation {
+  /** Clear the conversation but not the system prompt */
+  type: "clearConversation";
 }
 
 interface SetActiveCanvasAction {
@@ -69,7 +71,7 @@ interface UpdateProviderAction {
 export type PluginContextActions =
   | SystemPromptAction
   | AddMessageAction
-  | ClearMessagesAction
+  | ClearConversation
   | UpdateProviderAction
   | SetConversationState
   | SetManifestAction
@@ -98,20 +100,30 @@ function pluginReducer(
   action: PluginContextActions,
 ): PluginContextStore {
   switch (action.type) {
-    case "setSystemPrompt":
+    case "setSystemPrompt": {
+      const systemMessage: Message = {
+        role: "system",
+        content: { type: "text", content: action.systemPrompt },
+      };
+      const newMessages = [systemMessage, ...state.messages.filter((m) => m.role !== "system")];
+      setMessagesToStorage(newMessages);
       return {
         ...state,
         systemPrompt: action.systemPrompt,
-        messages: [
-          { role: "system", content: { type: "text", content: action.systemPrompt } },
-          ...state.messages.filter((m) => m.role !== "system"),
-        ],
+        messages: newMessages,
       };
-    case "addMessages":
-      return { ...state, messages: [...state.messages, ...action.messages] };
-    case "clearMessages":
+    }
+    case "addMessages": {
+      const newMessages = [...state.messages, ...action.messages];
+      setMessagesToStorage(newMessages);
+      return { ...state, messages: newMessages };
+    }
+    case "clearConversation": {
       // Clear all messages except system messages
-      return { ...state, messages: [...state.messages.filter((m) => m.role === "system")] };
+      const newMessages = [...state.messages.filter((m) => m.role === "system")];
+      setMessagesToStorage(newMessages);
+      return { ...state, messages: newMessages };
+    }
     case "updateProvider":
       if (!action.provider) {
         throw new Error("Provider cannot be undefined in updateProvider action");
@@ -136,7 +148,16 @@ function pluginReducer(
 }
 
 export const PluginContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [state, dispatch] = useReducer(pluginReducer, defaultPluginContextStore);
+  // Initialize state with messages from session storage if available
+  const getInitialState = (): PluginContextStore => {
+    const storedMessages = loadMessagesFromStorage();
+    return {
+      ...defaultPluginContextStore,
+      messages: storedMessages,
+    };
+  };
+
+  const [state, dispatch] = useReducer(pluginReducer, getInitialState());
 
   return (
     <PluginStateContext.Provider value={state}>
