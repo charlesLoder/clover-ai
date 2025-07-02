@@ -3,8 +3,8 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Button } from "@components";
 import type { Message } from "@types";
-import { generateText } from "ai";
-import React, { useState } from "react";
+import { streamText } from "ai";
+import React from "react";
 import { BaseProvider } from "../plugin/base_provider";
 import { Input } from "./components/Input";
 import { ProviderSelection } from "./components/ProviderSelection";
@@ -83,7 +83,7 @@ export class UserTokenProvider extends BaseProvider {
         }
       });
 
-      const response = await generateText({
+      const { textStream } = await streamText({
         model,
         // @ts-expect-error - there is a type mismatch here, but it works
         messages: allMessages,
@@ -91,10 +91,15 @@ export class UserTokenProvider extends BaseProvider {
 
       const assistantMessage: Message = {
         role: "assistant",
-        content: { type: "text", content: response.text },
+        content: { type: "text", content: "" },
       };
 
       this.add_messages([assistantMessage]);
+
+      for await (const textPart of textStream) {
+        assistantMessage.content.content += textPart;
+        this.update_last_message(assistantMessage);
+      }
     } finally {
       this.set_conversation_state("idle");
     }
@@ -130,8 +135,8 @@ export class UserTokenProvider extends BaseProvider {
 
   SetupComponent() {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const [modelProvider, setModelProvider] = useState<Provider | null>(null);
-    const [inputValue, setInputValue] = useState("");
+    const [modelProvider, setModelProvider] = React.useState<Provider | null>(null);
+    const [inputValue, setInputValue] = React.useState("");
     /* eslint-enable react-hooks/rules-of-hooks */
 
     const setProvider = (provider: Provider | null) => {

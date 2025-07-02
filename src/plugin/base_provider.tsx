@@ -51,6 +51,16 @@ export abstract class BaseProvider {
   }
 
   /**
+   * Update the last message in the Plugin state.
+   */
+  protected update_last_message(message: Message) {
+    this.dispatch({
+      type: "updateLastMessage",
+      message,
+    });
+  }
+
+  /**
    *  Update the Plugin state with the current provider.
    */
   protected update_plugin_provider(provider: BaseProvider) {

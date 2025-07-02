@@ -76,10 +76,16 @@ interface UpdateProviderAction {
   type: "updateProvider";
 }
 
+interface UpdateLastMessageAction {
+  message: Message;
+  type: "updateLastMessage";
+}
+
 export type PluginContextActions =
   | AddMessageAction
   | ClearConversation
   | UpdateProviderAction
+  | UpdateLastMessageAction
   | SetConversationState
   | SetManifestAction
   | SetActiveCanvasAction
@@ -126,6 +132,11 @@ export function pluginReducer(
     case "addMessages": {
       const newMessages = [...state.messages, ...action.messages];
       setMessagesToStorage(newMessages);
+      return { ...state, messages: newMessages };
+    }
+    case "updateLastMessage": {
+      const newMessages = [...state.messages];
+      newMessages[newMessages.length - 1] = action.message;
       return { ...state, messages: newMessages };
     }
     case "clearConversation": {
