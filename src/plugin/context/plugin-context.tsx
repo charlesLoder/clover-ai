@@ -1,4 +1,6 @@
-import type { Canvas, Manifest } from "@iiif/presentation-3";
+import type { Vault } from "@iiif/helpers";
+import type { CanvasNormalized, ManifestNormalized } from "@iiif/presentation-3-normalized";
+import type { Plugin as CloverIIIF } from "@samvera/clover-iiif";
 import type { ConversationState, Media, Message } from "@types";
 import { loadMessagesFromStorage, setMessagesToStorage } from "@utils";
 import type { Viewer } from "openseadragon";
@@ -7,15 +9,16 @@ import { createContext, useContext, useReducer } from "react";
 import type { BaseProvider } from "../base_provider";
 
 export interface PluginContextStore {
-  activeCanvas: Canvas | undefined;
+  activeCanvas: CanvasNormalized;
   conversationState: ConversationState;
-  manifest: Manifest | undefined;
+  manifest: ManifestNormalized;
   mediaDialogState: "closed" | "open";
   messages: Message[];
   openSeaDragonViewer: Viewer | undefined;
   provider: BaseProvider | undefined;
   selectedMedia: Media[];
   systemPrompt: string;
+  vault: Vault;
 }
 
 interface AddMessageAction {
@@ -29,7 +32,7 @@ interface ClearConversation {
 }
 
 interface SetActiveCanvasAction {
-  activeCanvas: Canvas | undefined;
+  activeCanvas: CanvasNormalized;
   type: "setActiveCanvas";
 }
 
@@ -39,7 +42,7 @@ interface SetConversationState {
 }
 
 interface SetManifestAction {
-  manifest: Manifest | undefined;
+  manifest: ManifestNormalized;
   type: "setManifest";
 }
 
@@ -58,6 +61,11 @@ interface SetSelectedMediaAction {
   type: "setSelectedMedia";
 }
 
+interface SetVaultAction {
+  vault: Vault;
+  type: "setVault";
+}
+
 interface SystemPromptAction {
   systemPrompt: string;
   type: "setSystemPrompt";
@@ -69,7 +77,6 @@ interface UpdateProviderAction {
 }
 
 export type PluginContextActions =
-  | SystemPromptAction
   | AddMessageAction
   | ClearConversation
   | UpdateProviderAction
@@ -78,21 +85,29 @@ export type PluginContextActions =
   | SetActiveCanvasAction
   | SetMediaDialogStateAction
   | SetSelectedMediaAction
-  | SetOSDViewerAction;
+  | SetOSDViewerAction
+  | SetVaultAction
+  | SystemPromptAction;
 
-const defaultPluginContextStore: PluginContextStore = {
-  systemPrompt: "",
-  messages: [],
-  provider: undefined,
+/** Default values not inherited from the Clover Viewer */
+type InitPluginContextStore = Omit<PluginContextStore, "vault" | "activeCanvas" | "manifest">;
+
+const defaultPluginContextStore: InitPluginContextStore = {
   conversationState: "idle",
   mediaDialogState: "closed",
-  selectedMedia: [],
-  manifest: undefined,
-  activeCanvas: undefined,
+  messages: [],
   openSeaDragonViewer: undefined,
+  provider: undefined,
+  selectedMedia: [],
+  systemPrompt: "",
 };
 
-const PluginStateContext = createContext<PluginContextStore>(defaultPluginContextStore);
+const PluginStateContext = createContext<PluginContextStore>(
+  // the context needs to be initialized with some value,
+  // but in order to avoid a bunch of undefined checks,
+  // we cast it as a PluginContextStore and then set Clover values in the PluginContextProvider
+  defaultPluginContextStore as PluginContextStore,
+);
 const PluginDispatchContext = createContext<Dispatch<PluginContextActions> | null>(null);
 
 function pluginReducer(
@@ -141,19 +156,32 @@ function pluginReducer(
       return { ...state, selectedMedia: action.selectedMedia };
     case "setOpenSeaDragonViewer":
       return { ...state, openSeaDragonViewer: action.openSeaDragonViewer };
+    case "setVault":
+      return { ...state, vault: action.vault };
     default:
       //@ts-expect-error - this is a catch-all for unknown action types
       throw new Error(`Unknown action type: ${action.type}`);
   }
 }
 
-export const PluginContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const PluginContextProvider = ({
+  children,
+  clover,
+}: {
+  children: React.ReactNode;
+  clover: CloverIIIF;
+}) => {
+  const { useViewerState } = clover;
+  const viewerState = useViewerState();
   // Initialize state with messages from session storage if available
   const getInitialState = (): PluginContextStore => {
     const storedMessages = loadMessagesFromStorage();
     return {
       ...defaultPluginContextStore,
+      manifest: viewerState.vault.get({ type: "Manifest", id: viewerState.activeManifest }),
+      activeCanvas: viewerState.vault.get({ type: "Canvas", id: viewerState.activeCanvas }),
       messages: storedMessages,
+      vault: viewerState.vault,
     };
   };
 

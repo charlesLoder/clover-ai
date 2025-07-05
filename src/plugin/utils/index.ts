@@ -1,7 +1,10 @@
-import type { InternationalString } from "@iiif/presentation-3";
+import type { ManifestNormalized } from "@iiif/presentation-3-normalized";
 import type { Message } from "@types";
 
-export function getLabelByUserLanguage(label: InternationalString): string[] {
+export function getLabelByUserLanguage(label: ManifestNormalized["label"]): string[] {
+  if (!label) {
+    return [];
+  }
   const userLangs = navigator.languages || [navigator.language];
   const lang = userLangs.find((l) => label[l]) || "none";
   const titles = label[lang] ? label[lang] : [];

@@ -1,6 +1,5 @@
 import { Heading, Message, MessagesContainer } from "@components";
 import { PluginContextProvider, usePlugin } from "@context";
-import { upgrade } from "@iiif/parser/upgrader";
 import type { Plugin as CloverPlugin } from "@samvera/clover-iiif";
 import { getLabelByUserLanguage } from "@utils";
 import { useEffect, useState } from "react";
@@ -35,35 +34,20 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch(viewerState.activeManifest);
-        const json = await response.json();
-        const manifest = upgrade(json);
-        if (manifest.type === "Manifest") {
-          dispatch({
-            type: "setManifest",
-            manifest: manifest,
-          });
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error("Error fetching manifest:", error);
-      }
-    })();
-  }, [viewerState.activeManifest, dispatch]);
+    const manifest = state.vault.get({ type: "Manifest", id: viewerState.activeManifest });
+    dispatch({
+      type: "setManifest",
+      manifest,
+    });
+  }, [viewerState.activeManifest, state.vault, dispatch]);
 
   useEffect(() => {
-    if (state.manifest) {
-      const activeCanvas = state.manifest.items.find(
-        (canvas) => canvas.id === viewerState.activeCanvas,
-      );
-      dispatch({
-        type: "setActiveCanvas",
-        activeCanvas: activeCanvas || undefined,
-      });
-    }
-  }, [viewerState.activeCanvas, state.manifest, dispatch]);
+    const canvas = state.vault.get({ type: "Canvas", id: viewerState.activeCanvas });
+    dispatch({
+      type: "setActiveCanvas",
+      activeCanvas: canvas,
+    });
+  }, [viewerState.activeCanvas, state.vault, dispatch]);
 
   useEffect(() => {
     if (state.manifest) {
@@ -119,7 +103,7 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
 
 export function PluginPanel(props: CloverPlugin & PluginProps) {
   return (
-    <PluginContextProvider>
+    <PluginContextProvider clover={props}>
       <PluginPanelComponent {...props} />
     </PluginContextProvider>
   );
