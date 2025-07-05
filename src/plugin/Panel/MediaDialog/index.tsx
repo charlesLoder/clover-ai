@@ -1,6 +1,6 @@
 import { Dialog, Heading, ImageSelect } from "@components";
 import { usePlugin } from "@context";
-import type { AnnotationBody, Canvas, IIIFExternalWebResource } from "@iiif/presentation-3";
+import type { CanvasNormalized } from "@iiif/presentation-3-normalized";
 import type { Media } from "@types";
 import { getLabelByUserLanguage } from "@utils";
 import { FC, useEffect, useRef } from "react";
@@ -10,18 +10,26 @@ function isMediaInSelectedMedia(media: Media, selectedMedia: Media[]): boolean {
   return selectedMedia.some((m) => m.id === media.id);
 }
 
+function handleSelectedMedia(
+  selected: boolean,
+  media: Media,
+  selectedMedia: Media[],
+  onUpdate: (media: Media[]) => void,
+) {
+  const resources: Media[] = selected
+    ? [...selectedMedia, media]
+    : selectedMedia.filter((m) => m.id !== media.id);
+
+  onUpdate(resources);
+}
+
 const CurrentView = () => {
   const { state, dispatch } = usePlugin();
 
   function handleAddMedia(selected: boolean, media: Media) {
-    const resources: Media[] = selected
-      ? [...state.selectedMedia, media]
-      : state.selectedMedia.filter((m) => m.id !== media.id);
-
-    dispatch({
-      type: "setSelectedMedia",
-      selectedMedia: resources,
-    });
+    handleSelectedMedia(selected, media, state.selectedMedia, (resources) =>
+      dispatch({ type: "setSelectedMedia", selectedMedia: resources }),
+    );
   }
 
   function getCurrentViewDataUrl(canvas: HTMLCanvasElement | HTMLElement) {
@@ -84,75 +92,62 @@ const Placeholder = () => {
   const { state, dispatch } = usePlugin();
 
   function handleAddMedia(selected: boolean, media: Media) {
-    const resources: Media[] = selected
-      ? [...state.selectedMedia, media]
-      : state.selectedMedia.filter((m) => m.id !== media.id);
-
-    dispatch({
-      type: "setSelectedMedia",
-      selectedMedia: resources,
-    });
+    handleSelectedMedia(selected, media, state.selectedMedia, (resources) =>
+      dispatch({ type: "setSelectedMedia", selectedMedia: resources }),
+    );
   }
 
-  function formatCaption({ height, width }: { height?: number; width?: number }) {
-    const tiltle = getLabelByUserLanguage(state.activeCanvas?.label ?? {})[0];
-    return `Default\n${tiltle} (${width ?? "?"} x ${height ?? "?"})`;
+  // Though the resource may have `width` and `height` properties
+  // it's type, ContentResource, does not include them.
+  // To ensure we can access them safely,
+  // cast the resource to `any` and then try to access them.
+  function getDimensions(resource: any): { width: number; height: number } {
+    return {
+      width: resource.width || 0,
+      height: resource.height || 0,
+    };
   }
 
-  function isContentResource(body: AnnotationBody): body is IIIFExternalWebResource {
-    return typeof body !== "string" && "id" in body && "width" in body && "height" in body;
+  function formatCaption(resource: any) {
+    const { width, height } = getDimensions(resource);
+    const dimensions = width && height ? `\n(${width} x ${height})` : "";
+    return `Placeholder${dimensions}`;
   }
 
-  if (!state?.activeCanvas?.placeholderCanvas?.items) {
+  const activeCanvas = state.activeCanvas;
+
+  if (!activeCanvas.placeholderCanvas) {
     return <></>;
   }
 
-  const placeholder = state.activeCanvas.placeholderCanvas;
-  if (!placeholder) {
-    return <></>;
-  }
+  const placeholderResource = state.vault.get({
+    type: "Canvas",
+    id: activeCanvas.placeholderCanvas.id,
+  });
 
-  const items = placeholder.items;
-  if (!items || !items.length) {
-    return <></>;
-  }
+  const annotationItems = state.vault.get({
+    type: "AnnotationPage",
+    id: placeholderResource.items.map((item) => item.id),
+  });
 
-  const itemsItems = items
-    .map((i) => i.items)
-    .filter((i) => i)
-    .flat();
+  const annotationPageItems = state.vault.get({
+    type: "Annotation",
+    id: annotationItems.items.map((item) => item.id),
+  });
 
-  if (!itemsItems.length) {
-    return <></>;
-  }
+  const body = state.vault.get({
+    type: "ContentResource",
+    id: annotationPageItems.body.map((b) => b.id),
+  });
 
-  const paintings = itemsItems.filter((i) => i?.motivation === "painting").flat();
-
-  const bodies = paintings
-    .map((i) => (i?.body && Array.isArray(i.body) ? i.body : ([i?.body] as AnnotationBody[])))
-    .filter((i) => i && i.length > 0)
-    .flat();
-
-  if (!bodies.length) {
-    return <></>;
-  }
-
-  const defaultPainting = bodies.find((b) => isContentResource(b));
-
-  if (!defaultPainting) {
-    return <></>;
-  }
-
-  const id = defaultPainting.id;
+  const id = body.id;
   const paintingMedia: Media = {
     type: "image",
     id: id || "",
     src: id || "",
-    caption: formatCaption({
-      width: defaultPainting.width,
-      height: defaultPainting.height,
-    }),
+    caption: formatCaption(body),
   };
+
   return (
     <>
       {id && (
@@ -171,26 +166,32 @@ const Placeholder = () => {
 };
 
 const Thumbnail: FC<{
-  index: number;
-  numOfThumbnails: number;
-  thumbnail: IIIFExternalWebResource;
-}> = ({ thumbnail, index, numOfThumbnails }) => {
+  thumbnail: CanvasNormalized["thumbnail"][0];
+}> = ({ thumbnail }) => {
   const { state, dispatch } = usePlugin();
+  const resource = state.vault.get({ type: "ContentResource", id: thumbnail.id });
 
   function handleAddMedia(selected: boolean, media: Media) {
-    const resources: Media[] = selected
-      ? [...state.selectedMedia, media]
-      : state.selectedMedia.filter((m) => m.id !== media.id);
-
-    dispatch({
-      type: "setSelectedMedia",
-      selectedMedia: resources,
-    });
+    handleSelectedMedia(selected, media, state.selectedMedia, (resources) =>
+      dispatch({ type: "setSelectedMedia", selectedMedia: resources }),
+    );
   }
 
-  function formatCaption() {
-    const tiltle = getLabelByUserLanguage(state.activeCanvas?.label ?? {})[0];
-    return `Thumbnail ${numOfThumbnails > 1 ? `(${index + 1})` : ""}\n${tiltle} (${thumbnail.width ?? "?"} x ${thumbnail.height ?? "?"})`;
+  // Though the resource may have `width` and `height` properties
+  // it's type, ContentResource, does not include them.
+  // To ensure we can access them safely,
+  // cast the resource to `any` and then try to access them.
+  function getDimensions(resource: any): { width: number; height: number } {
+    return {
+      width: resource.width || 0,
+      height: resource.height || 0,
+    };
+  }
+
+  function formatCaption(resource: any) {
+    const { width, height } = getDimensions(resource);
+    const dimensions = width && height ? `\n(${width} x ${height})` : "";
+    return `Thumbnail${dimensions}`;
   }
 
   const id = thumbnail.id;
@@ -198,14 +199,15 @@ const Thumbnail: FC<{
     type: "image",
     id: id || "",
     src: id || "",
-    caption: formatCaption(),
+    caption: formatCaption(resource),
   };
+
   return (
     <>
       {id && (
         <ImageSelect
-          figcaption={formatCaption()}
-          src={thumbnail.id}
+          figcaption={thumbnailMedia.caption}
+          src={thumbnailMedia.src}
           initialState={
             isMediaInSelectedMedia(thumbnailMedia, state.selectedMedia) ? "selected" : "unselected"
           }
@@ -220,15 +222,10 @@ export const MediaDialog = () => {
   const { state, dispatch } = usePlugin();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const initialFocusRef = useRef<HTMLDivElement>(null);
+  const canvasTitle = getLabelByUserLanguage(state.activeCanvas.label)[0];
 
   function closeDialog() {
     dispatch({ type: "setMediaDialogState", state: "closed" });
-  }
-
-  function isWebResource(
-    resource: NonNullable<Canvas["thumbnail"]>[0],
-  ): resource is IIIFExternalWebResource {
-    return "width" in resource && "height" in resource;
   }
 
   useEffect(() => {
@@ -278,23 +275,19 @@ export const MediaDialog = () => {
           <div className={style.header}>
             <Heading level={"h3"}>Add media</Heading>
           </div>
-          <p className={style.subtitle}>Add media to the chat</p>
+          <p className={style.subtitle}>
+            Add media from current canvas {canvasTitle?.length ? `(${canvasTitle})` : ""} to the
+            chat
+          </p>
           <div className={style.contentContainer}>
             <div className={style.content}>
               <CurrentView />
               <Placeholder />
-              {state?.activeCanvas?.thumbnail?.length && (
+              {state.activeCanvas.thumbnail.length > 0 && (
                 <>
-                  {state.activeCanvas.thumbnail
-                    .filter(isWebResource)
-                    .map((thumbnail, i, thumbnails) => (
-                      <Thumbnail
-                        index={i}
-                        key={i}
-                        numOfThumbnails={thumbnails.length}
-                        thumbnail={thumbnail}
-                      />
-                    ))}
+                  {state.activeCanvas.thumbnail.map((thumbnail, i) => (
+                    <Thumbnail key={`thumbnail-${i}`} thumbnail={thumbnail} />
+                  ))}
                 </>
               )}
             </div>
