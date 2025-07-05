@@ -89,7 +89,7 @@ export type PluginContextActions =
   | SetVaultAction
   | SystemPromptAction;
 
-/** Default values not inherited from the Clvoer Viewer */
+/** Default values not inherited from the Clover Viewer */
 type InitPluginContextStore = Omit<PluginContextStore, "vault" | "activeCanvas" | "manifest">;
 
 const defaultPluginContextStore: InitPluginContextStore = {
