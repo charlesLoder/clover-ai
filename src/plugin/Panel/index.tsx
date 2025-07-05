@@ -39,7 +39,7 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
       type: "setManifest",
       manifest,
     });
-  }, [viewerState.activeManifest, dispatch]);
+  }, [viewerState.activeManifest, state.vault, dispatch]);
 
   useEffect(() => {
     const canvas = state.vault.get({ type: "Canvas", id: viewerState.activeCanvas });
@@ -47,7 +47,7 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
       type: "setActiveCanvas",
       activeCanvas: canvas,
     });
-  }, [viewerState.activeCanvas, dispatch]);
+  }, [viewerState.activeCanvas, state.vault, dispatch]);
 
   useEffect(() => {
     if (state.manifest) {

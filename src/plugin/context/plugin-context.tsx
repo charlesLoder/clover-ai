@@ -165,11 +165,11 @@ function pluginReducer(
 }
 
 export const PluginContextProvider = ({
-  clover,
   children,
+  clover,
 }: {
-  clover: CloverIIIF;
   children: React.ReactNode;
+  clover: CloverIIIF;
 }) => {
   const { useViewerState } = clover;
   const viewerState = useViewerState();

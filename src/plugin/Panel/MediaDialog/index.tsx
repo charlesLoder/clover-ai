@@ -1,6 +1,6 @@
 import { Dialog, Heading, ImageSelect } from "@components";
 import { usePlugin } from "@context";
-import type { CanvasNormalized } from "@iiif/presentation-3-normalized";
+import type { CanvasNormalized, ContentResourceNormalized } from "@iiif/presentation-3-normalized";
 import type { Media } from "@types";
 import { getLabelByUserLanguage } from "@utils";
 import { FC, useEffect, useRef } from "react";
@@ -101,14 +101,15 @@ const Placeholder = () => {
   // it's type, ContentResource, does not include them.
   // To ensure we can access them safely,
   // cast the resource to `any` and then try to access them.
-  function getDimensions(resource: any): { width: number; height: number } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getDimensions(resource: any): { height: number; width: number } {
     return {
-      width: resource.width || 0,
       height: resource.height || 0,
+      width: resource.width || 0,
     };
   }
 
-  function formatCaption(resource: any) {
+  function formatCaption(resource: ContentResourceNormalized) {
     const { width, height } = getDimensions(resource);
     const dimensions = width && height ? `\n(${width} x ${height})` : "";
     return `Placeholder${dimensions}`;
@@ -181,14 +182,15 @@ const Thumbnail: FC<{
   // it's type, ContentResource, does not include them.
   // To ensure we can access them safely,
   // cast the resource to `any` and then try to access them.
-  function getDimensions(resource: any): { width: number; height: number } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getDimensions(resource: any): { height: number; width: number } {
     return {
-      width: resource.width || 0,
       height: resource.height || 0,
+      width: resource.width || 0,
     };
   }
 
-  function formatCaption(resource: any) {
+  function formatCaption(resource: ContentResourceNormalized) {
     const { width, height } = getDimensions(resource);
     const dimensions = width && height ? `\n(${width} x ${height})` : "";
     return `Thumbnail${dimensions}`;
