@@ -102,15 +102,10 @@ const defaultPluginContextStore: InitPluginContextStore = {
   systemPrompt: "",
 };
 
-const PluginStateContext = createContext<PluginContextStore>(
-  // the context needs to be initialized with some value,
-  // but in order to avoid a bunch of undefined checks,
-  // we cast it as a PluginContextStore and then set Clover values in the PluginContextProvider
-  defaultPluginContextStore as PluginContextStore,
-);
+const PluginStateContext = createContext<PluginContextStore | null>(null);
 const PluginDispatchContext = createContext<Dispatch<PluginContextActions> | null>(null);
 
-function pluginReducer(
+export function pluginReducer(
   state: PluginContextStore,
   action: PluginContextActions,
 ): PluginContextStore {
