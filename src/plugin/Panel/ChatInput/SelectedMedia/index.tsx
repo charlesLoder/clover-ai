@@ -18,6 +18,8 @@ export const SelectedMedia: React.FC<SelectedMediaProps> = ({ media }) => {
     <div className={style.selectedMedia}>
       <Figure height={"30px"} src={media.src} title={media.caption} width={"30px"} />
       <Button
+        aria-label="Remove media"
+        title="Remove media"
         shape="circle"
         size="small"
         type="button"
