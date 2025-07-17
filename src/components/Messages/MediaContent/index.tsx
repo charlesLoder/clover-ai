@@ -13,7 +13,7 @@ export interface MediaContentProps {
  */
 export const MediaContent: FC<MediaContentProps> = ({ content, role }) => {
   return (
-    <div data-role={role}>
+    <div data-role={role} data-type="media-content">
       <Figure figcaption={content.content.caption || ""} src={content.content.src} />
     </div>
   );
