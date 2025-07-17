@@ -2,11 +2,27 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: var(--clover-ai-sizes-3);
+  /* rescope gap to safely use in component */
+  --gap: var(--clover-ai-sizes-3);
+  gap: var(--gap);
   scrollbar-color: var(--clover-ai-colors-secondaryAlt) transparent;
   overflow-y: scroll;
 
-  [data-role="user"] {
-    align-self: flex-end;
+  &:has(> [data-role="user"]:nth-last-child(2)) {
+    /* 
+      TODO: if tool calling is every implemented, flexible messages will be needed
+      and this component will likely to be a compositional component.
+    */
+    &::after {
+      content: "Thinking...";
+      font-style: italic;
+      --line-height: 1.5;
+      line-height: var(--line-height);
+      margin-block-start: calc(-2 * (var(--line-height) * var(--clover-ai-sizes-3)));
+    }
+  }
+
+  [data-role="filler"] {
+    flex-shrink: 0;
   }
 }

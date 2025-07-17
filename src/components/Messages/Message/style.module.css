@@ -1,0 +1,8 @@
+.message {
+  display: flex;
+  flex-direction: column;
+
+  &[data-role="user"] {
+    align-items: flex-end;
+  }
+}
