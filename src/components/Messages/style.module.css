@@ -18,6 +18,9 @@
       font-style: italic;
       --line-height: 1.5;
       line-height: var(--line-height);
+      /* The multiplier -2 is used to adjust the positioning of the "Thinking..." text
+         relative to the preceding content. It ensures the text appears slightly above
+         its default position for better visual alignment. */
       margin-block-start: calc(-2 * (var(--line-height) * var(--clover-ai-sizes-3)));
     }
   }
