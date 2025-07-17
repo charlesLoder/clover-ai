@@ -1,7 +1,8 @@
 import type { Message as IMessage } from "@types";
-import type { FC } from "react";
+import { forwardRef } from "react";
 import { MediaContent } from "../MediaContent";
 import { TextContent } from "../TextContent";
+import style from "./style.module.css";
 
 export interface MessageProps {
   message: IMessage;
@@ -10,9 +11,9 @@ export interface MessageProps {
 /**
  *  Render a single message in a conversation.
  */
-export const Message: FC<MessageProps> = ({ message }) => {
+export const Message = forwardRef<HTMLDivElement, MessageProps>(({ message }, ref) => {
   return (
-    <>
+    <div ref={ref} data-role={message.role} className={style.message} data-type="message">
       {message.role === "assistant" && (
         <TextContent role={message.role} textContent={message.content} />
       )}
@@ -24,6 +25,8 @@ export const Message: FC<MessageProps> = ({ message }) => {
             <MediaContent content={content} key={index} role={message.role} />
           ) : null;
         })}
-    </>
+    </div>
   );
-};
+});
+
+Message.displayName = "Message";
