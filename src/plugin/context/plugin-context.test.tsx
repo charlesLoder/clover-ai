@@ -20,8 +20,10 @@ vi.mock("@utils", () => ({
 }));
 
 const mockInitialState: PluginContextStore = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   activeCanvas: {} as any,
   conversationState: "idle",
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   manifest: {} as any,
   mediaDialogState: "closed",
   messages: [],
@@ -29,6 +31,7 @@ const mockInitialState: PluginContextStore = {
   provider: undefined,
   selectedMedia: [],
   systemPrompt: "",
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vault: {} as any,
 };
 
@@ -99,6 +102,7 @@ describe("pluginReducer", () => {
   });
 
   it("should handle updateProvider", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const provider = { name: "TestProvider" } as any;
     const action: PluginContextActions = { type: "updateProvider", provider };
     const newState = pluginReducer(mockInitialState, action);
@@ -107,6 +111,7 @@ describe("pluginReducer", () => {
   });
 
   it("should throw error if provider is undefined in updateProvider", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const action: PluginContextActions = { type: "updateProvider", provider: undefined as any };
     expect(() => pluginReducer(mockInitialState, action)).toThrow(
       "Provider cannot be undefined in updateProvider action",
@@ -114,6 +119,7 @@ describe("pluginReducer", () => {
   });
 
   it("should handle setManifest", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const manifest = { id: "manifest-1" } as any;
     const action: PluginContextActions = { type: "setManifest", manifest };
     const newState = pluginReducer(mockInitialState, action);
@@ -122,6 +128,7 @@ describe("pluginReducer", () => {
   });
 
   it("should handle setActiveCanvas", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const activeCanvas = { id: "canvas-1" } as any;
     const action: PluginContextActions = { type: "setActiveCanvas", activeCanvas };
     const newState = pluginReducer(mockInitialState, action);
@@ -146,6 +153,7 @@ describe("pluginReducer", () => {
   });
 
   it("should handle setSelectedMedia", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectedMedia = [{ type: "image", url: "http://example.com/img.png" }] as any;
     const action: PluginContextActions = { type: "setSelectedMedia", selectedMedia };
     const newState = pluginReducer(mockInitialState, action);
@@ -154,6 +162,7 @@ describe("pluginReducer", () => {
   });
 
   it("should handle setOpenSeaDragonViewer", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const openSeaDragonViewer = { id: "osd-viewer" } as any;
     const action: PluginContextActions = { type: "setOpenSeaDragonViewer", openSeaDragonViewer };
     const newState = pluginReducer(mockInitialState, action);
@@ -162,6 +171,7 @@ describe("pluginReducer", () => {
   });
 
   it("should handle setVault", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const vault = { id: "vault-1" } as any;
     const action: PluginContextActions = { type: "setVault", vault };
     const newState = pluginReducer(mockInitialState, action);
@@ -170,6 +180,7 @@ describe("pluginReducer", () => {
   });
 
   it("should throw an error for an unknown action type", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const action: PluginContextActions = { type: "UNKNOWN_ACTION" } as any;
     expect(() => pluginReducer(mockInitialState, action)).toThrow(
       "Unknown action type: UNKNOWN_ACTION",

@@ -1,4 +1,4 @@
-import { Heading, Message, MessagesContainer } from "@components";
+import { Heading, MessagesContainer } from "@components";
 import { PluginContextProvider, usePlugin } from "@context";
 import type { Plugin as CloverPlugin } from "@samvera/clover-iiif";
 import { getLabelByUserLanguage } from "@utils";
@@ -85,16 +85,7 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
   return (
     <PanelWrapper>
       <Heading level="h4">Chat about {itemTitle}</Heading>
-      <MessagesContainer messages={state.messages} />
-      {state.conversationState === "assistant_responding" && (
-        <Message
-          key={`message-loading`}
-          message={{
-            role: "assistant",
-            content: { type: "text", content: "Thinking..." },
-          }}
-        />
-      )}
+      <MessagesContainer messages={state.messages.filter((m) => m.role !== "system")} />
       <MediaDialog />
       <ChatInput />
     </PanelWrapper>

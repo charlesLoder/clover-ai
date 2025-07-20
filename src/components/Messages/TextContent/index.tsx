@@ -13,7 +13,7 @@ export interface TextContentProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const TextContent: FC<TextContentProps> = ({ textContent, role, ...props }) => {
   return (
-    <div className={style.textContent} data-role={role} {...props}>
+    <div className={style.textContent} data-role={role} data-type="text-content" {...props}>
       <Markdown>{textContent.content}</Markdown>
     </div>
   );

@@ -19,9 +19,9 @@ export const SelectedMedia: React.FC<SelectedMediaProps> = ({ media }) => {
       <Figure height={"30px"} src={media.src} title={media.caption} width={"30px"} />
       <Button
         aria-label="Remove media"
-        title="Remove media"
         shape="circle"
         size="small"
+        title="Remove media"
         type="button"
         variant="secondary"
         onClick={() => handleClick(media.id)}
