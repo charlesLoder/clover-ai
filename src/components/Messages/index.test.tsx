@@ -6,7 +6,6 @@ import { MessagesContainer } from "./index";
 import style from "./style.module.css";
 
 describe("MessagesContainer", () => {
-  const scrollIntoViewMock = window.HTMLElement.prototype.scrollIntoView;
   configure({ testIdAttribute: "data-type" });
 
   afterEach(() => {

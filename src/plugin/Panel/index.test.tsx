@@ -9,6 +9,7 @@ import { BaseProvider } from "../base_provider";
 import { PluginPanel as Panel } from "./index";
 
 vi.mock("@components", async (importOriginal) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const original = (await importOriginal()) as Record<string, any>;
   return {
     ...original,
@@ -16,15 +17,15 @@ vi.mock("@components", async (importOriginal) => {
       onChange,
       children,
     }: {
-      onChange: (value: string) => void;
       children: React.ReactNode;
+      onChange: (value: string) => void;
     }) => {
       const [value, setValue] = React.useState("");
       return (
         <div>
           <input
-            type="text"
             aria-label="What would you like to know?"
+            type="text"
             value={value}
             onChange={(e) => {
               setValue(e.target.value);
@@ -97,6 +98,7 @@ class MockProvider extends BaseProvider {
 
 describe("Plugin > Panel", () => {
   it("should render an error if no provider is in state", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render(<Panel {...mockClover} provider={undefined as any} />);
     expect(screen.getByText("Error: No provider instantiated.")).toBeInTheDocument();
   });

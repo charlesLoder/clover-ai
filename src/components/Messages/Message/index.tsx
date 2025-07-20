@@ -13,7 +13,7 @@ export interface MessageProps {
  */
 export const Message = forwardRef<HTMLDivElement, MessageProps>(({ message }, ref) => {
   return (
-    <div ref={ref} data-role={message.role} className={style.message} data-type="message">
+    <div className={style.message} data-role={message.role} data-type="message" ref={ref}>
       {message.role === "assistant" && (
         <TextContent role={message.role} textContent={message.content} />
       )}

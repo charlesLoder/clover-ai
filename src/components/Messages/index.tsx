@@ -26,7 +26,7 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({ messages, ...pro
       setFillerHeight(0);
       fillerRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   useLayoutEffect(() => {
     // When a new user message is added,
@@ -47,7 +47,7 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({ messages, ...pro
       const containerHeight = node.parentElement?.clientHeight || 0;
 
       switch (currentMessage.role) {
-        case "assistant":
+        case "assistant": {
           // If the last message is from the assistant, we want to ensure that the filler height
           // is set to the height of the container minus the height of the current message and the height of the previous user message.
           // ensuring that if the assistant message does not fill the container,
@@ -55,6 +55,7 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({ messages, ...pro
           const previousMssgHeight = node.previousElementSibling?.clientHeight || 0;
           setFillerHeight(containerHeight - currentMessageHeight - previousMssgHeight);
           break;
+        }
 
         default:
           // If the last message is from the user, we want to ensure that the filler height
