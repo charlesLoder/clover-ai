@@ -26,6 +26,7 @@ export const ChatInput: FC = () => {
       return;
     }
 
+    setTextareaError("");
     setFormState("loading");
 
     const userMessage: UserMessage = {
@@ -92,7 +93,12 @@ export const ChatInput: FC = () => {
         labelDisplay="hidden"
         size="small"
         updatedContent={formState !== "idle" ? "" : undefined}
-        onChange={(input) => setTextareaValue(input)}
+        onChange={(input) => {
+          setTextareaValue(input);
+          if (input?.trim() && textareaError) {
+            setTextareaError("");
+          }
+        }}
       >
         <div className="selected-media">
           {state.selectedMedia.length ? (
