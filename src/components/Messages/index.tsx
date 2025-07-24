@@ -1,16 +1,21 @@
 import { Message } from "@components";
-import { Message as IMessage } from "@types";
+import { ConversationState, Message as IMessage } from "@types";
 import { type FC, useCallback, useLayoutEffect, useRef, useState } from "react";
 import style from "./style.module.css";
 
 export interface MessagesContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   messages: IMessage[];
+  conversationState: ConversationState;
 }
 
 /**
  * Render an array of messages
  */
-export const MessagesContainer: FC<MessagesContainerProps> = ({ messages, ...props }) => {
+export const MessagesContainer: FC<MessagesContainerProps> = ({
+  messages,
+  conversationState,
+  ...props
+}) => {
   // fillerHeight is used to set the height of the filler element
   // allowing the latest user message to scroll to the top of the container
   // and ensuring there is no layout shift after the next assistant message is added.
@@ -69,7 +74,7 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({ messages, ...pro
   );
 
   return (
-    <div className={style.messagesContainer} {...props}>
+    <div className={style.messagesContainer} data-state={conversationState} {...props}>
       {messages.map((mssg, i) => (
         <Message
           key={`message-${i}`}
