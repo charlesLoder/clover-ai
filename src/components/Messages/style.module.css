@@ -8,11 +8,7 @@
   scrollbar-color: var(--clover-ai-colors-secondaryAlt) transparent;
   overflow-y: scroll;
 
-  &:has(> [data-role="user"]:nth-last-child(2)) {
-    /* 
-      TODO: if tool calling is every implemented, flexible messages will be needed
-      and this component will likely to be a compositional component.
-    */
+  &[data-state="assistant_responding"] {
     &::after {
       content: "Thinking...";
       font-style: italic;
