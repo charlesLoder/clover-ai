@@ -134,28 +134,33 @@ export class MyCustomProvider extends BaseProvider {
     );
   }
 
-  async send_messages(messagesmessages: Message[], conversationHistory: Message[]): Promise<void> {
+  async send_messages(messages: Message[], conversationHistory: Message[]): Promise<void> {
     this.set_conversation_state("assistant_responding");
 
     const mockWebSocket = new WebSocket("ws://mock-websocket-server");
 
     mockWebSocket.onopen = () => {
-      mockWebSocket.send(JSON.stringify([...conversationHistory, ...messagesmessages]));
+      mockWebSocket.send(JSON.stringify([...conversationHistory, ...messages]));
     };
 
-    let messageResponse = "";
+    const assistantMessage: Message = {
+      role: "assistant",
+      content: { type: "text", content: "" },
+    };
+
+    // Add a blank message to be updated
+    this.add_messages([assistantMessage]);
+
     mockWebSocket.onmessage = (event) => {
       const response = JSON.parse(event.data);
+
       if (response.text === "llm_end") {
-        const assistantMessage: Message = {
-          role: "assistant",
-          content: { type: "text", content: messageResponse },
-        };
-        this.add_messages([assistantMessage]);
         this.set_conversation_state("idle");
         return;
       }
-      messageResponse += response.text;
+
+      assistantMessage.content.content += response.text;
+      this.update_last_message(assistantMessage);
     };
   }
 }
@@ -169,6 +174,15 @@ Next, we create a WebSocket connection to a mock server (you can replace this wi
 
 When the WebSocket connection is opened, we send the conversation history and the new messages to the server.
 
-Because Clover AI does not support streaming responses, we accumulate the response text in the `messageResponse` variable until we receive a message indicating that the LLM has finished responding (in this case, when the text is `"llm_end"`).
+We also create an `assistantMessage` object with an empty content field. This message will be updated as we receive responses from the mock server.
 
-Finally, we create an assistant message with the accumulated response text and add it to the conversation history, then set the conversation state back to `"idle"`.
+We add this message to the conversation history using `this.add_messages([assistantMessage])`.
+
+We then listen for messages from the WebSocket server.
+When a message is received, we parse the response and check if it contains the text `"llm_end"`, which indicates that the LLM has finished processing.
+
+If it does, we set the conversation state back to `"idle"` and return.
+
+If the response contains text, we append it to the `assistantMessage` content and update the last message in the conversation history using `this.update_last_message(assistantMessage)`.
+
+This allows the assistant message to accumulate the response text as it comes in from the mock server.
