@@ -86,8 +86,8 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
     <PanelWrapper>
       <Heading level="h4">Chat about {itemTitle}</Heading>
       <MessagesContainer
-        messages={state.messages.filter((m) => m.role !== "system")}
         conversationState={state.conversationState}
+        messages={state.messages.filter((m) => m.role !== "system")}
       />
       <MediaDialog />
       <ChatInput />
