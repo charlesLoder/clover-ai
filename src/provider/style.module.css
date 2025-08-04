@@ -1,0 +1,10 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-sizes-2);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: var(--clover-ai-sizes-2);
+}
