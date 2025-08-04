@@ -18,8 +18,8 @@ type OpenAIModels = Parameters<OpenAIProvider>[0];
 type AnthropicModels = Parameters<AnthropicProvider>[0];
 
 export class UserTokenProvider extends BaseProvider {
-  #selected_provider: Provider | null = null;
   #selected_model: string | null = null;
+  #selected_provider: Provider | null = null;
   #user_token: string | null = null;
   allowed_providers: Provider[] = ["google", "openai", "anthropic"];
 
@@ -27,6 +27,10 @@ export class UserTokenProvider extends BaseProvider {
     super();
     super.status = user_token ? "ready" : "initializing";
     this.#user_token = user_token || this.#user_token;
+  }
+
+  #isValidProviderModel(provider: Provider, model: string): boolean {
+    return this.models_by_provider[provider].includes(model);
   }
 
   get models_by_provider(): Record<Provider, string[]> {
@@ -39,24 +43,6 @@ export class UserTokenProvider extends BaseProvider {
         "claude-3-7-sonnet-20250219",
       ] as AnthropicModels[],
     };
-  }
-
-  #isValidProviderModel(provider: Provider, model: string): boolean {
-    return this.models_by_provider[provider].includes(model);
-  }
-
-  get selected_provider(): Provider | null {
-    return this.#selected_provider;
-  }
-
-  set selected_provider(provider: Provider | null) {
-    if (provider === null || this.allowed_providers.includes(provider)) {
-      this.#selected_provider = provider;
-    } else {
-      throw new Error(
-        `Invalid provider: ${provider}. Allowed providers are: ${this.allowed_providers.join(", ")}`,
-      );
-    }
   }
 
   get selected_model(): string | null {
@@ -73,6 +59,20 @@ export class UserTokenProvider extends BaseProvider {
       this.#selected_model = model;
     } else {
       throw new Error(`Invalid model: ${model} for provider: ${this.selected_provider}.`);
+    }
+  }
+
+  get selected_provider(): Provider | null {
+    return this.#selected_provider;
+  }
+
+  set selected_provider(provider: Provider | null) {
+    if (provider === null || this.allowed_providers.includes(provider)) {
+      this.#selected_provider = provider;
+    } else {
+      throw new Error(
+        `Invalid provider: ${provider}. Allowed providers are: ${this.allowed_providers.join(", ")}`,
+      );
     }
   }
 
@@ -219,9 +219,9 @@ export class UserTokenProvider extends BaseProvider {
     if (!selectedModel) {
       return (
         <ModelSelection
-          models={this.models_by_provider[modelProvider]}
-          handleClick={setModel}
           handleBack={() => setProvider(null)}
+          handleClick={setModel}
+          models={this.models_by_provider[modelProvider]}
         />
       );
     }

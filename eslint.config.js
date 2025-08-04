@@ -69,7 +69,7 @@ export default tseslint.config(
               "public-field",
               "constructor",
               "private-accessor",
-              "private-method",
+              "#private-method",
               "protected-method",
               "abstract-method",
               ["public-get", "public-set"],
