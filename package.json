@@ -1,6 +1,6 @@
 {
   "name": "clover-ai",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Add AI capabilities to Clover IIIF",
   "author": "Charles Loder <charles.w.loder@gmail.com>",
   "keywords": [
