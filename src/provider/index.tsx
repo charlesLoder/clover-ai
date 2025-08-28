@@ -29,8 +29,17 @@ export class UserTokenProvider extends BaseProvider {
     this.#user_token = user_token || this.#user_token;
   }
 
-  #isValidProviderModel(provider: Provider, model: string): boolean {
+  #is_valid_model_provider_model(provider: Provider, model: string): boolean {
     return this.models_by_provider[provider].includes(model);
+  }
+
+  #reset_model() {
+    this.#selected_model = null;
+  }
+
+  #reset_provider() {
+    this.#selected_provider = null;
+    this.#reset_model();
   }
 
   get models_by_provider(): Record<Provider, string[]> {
@@ -45,46 +54,49 @@ export class UserTokenProvider extends BaseProvider {
     };
   }
 
-  get selected_model(): string | null {
+  get selected_model(): string {
+    if (!this.#selected_model) {
+      throw new Error("No model selected");
+    }
     return this.#selected_model;
   }
 
-  set selected_model(model: string | null) {
-    if (model === null) {
-      this.#selected_model = null;
-    } else if (
-      this.selected_provider &&
-      this.#isValidProviderModel(this.selected_provider, model)
-    ) {
-      this.#selected_model = model;
-    } else {
+  set selected_model(model: string) {
+    if (!this.#is_valid_model_provider_model(this.selected_provider, model)) {
       throw new Error(`Invalid model: ${model} for provider: ${this.selected_provider}.`);
     }
+    this.#selected_model = model;
   }
 
-  get selected_provider(): Provider | null {
+  get selected_provider(): Provider {
+    if (!this.#selected_provider) {
+      throw new Error("No provider selected");
+    }
     return this.#selected_provider;
   }
 
-  set selected_provider(provider: Provider | null) {
-    if (provider === null || this.allowed_providers.includes(provider)) {
-      this.#selected_provider = provider;
-    } else {
+  set selected_provider(provider: Provider) {
+    if (!this.allowed_providers.includes(provider)) {
       throw new Error(
         `Invalid provider: ${provider}. Allowed providers are: ${this.allowed_providers.join(", ")}`,
       );
     }
+
+    this.#selected_provider = provider;
   }
 
   get status() {
-    return this.user_token ? "ready" : "initializing";
+    return this.#user_token ? "ready" : "initializing";
   }
 
-  get user_token(): string | null {
+  get user_token(): string {
+    if (!this.#user_token) {
+      throw new Error("No user token set");
+    }
     return this.#user_token;
   }
 
-  set user_token(user_token: string | null) {
+  set user_token(user_token: string) {
     this.#user_token = user_token;
   }
 
@@ -180,30 +192,24 @@ export class UserTokenProvider extends BaseProvider {
 
   SetupComponent() {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const [modelProvider, setModelProvider] = React.useState<Provider | null>(
-      this.selected_provider,
-    );
-    const [selectedModel, setSelectedModel] = React.useState<string | null>(this.selected_model);
+    const [modelProvider, setModelProvider] = React.useState<Provider | null>(null);
+    const [selectedModel, setSelectedModel] = React.useState<string | null>(null);
     const [inputValue, setInputValue] = React.useState("");
     /* eslint-enable react-hooks/rules-of-hooks */
 
-    const setProvider = (provider: Provider | null) => {
+    const setProvider = (provider: Provider) => {
       setModelProvider(provider);
       this.selected_provider = provider;
-      if (!provider) {
-        this.selected_model = null;
-        setSelectedModel(null);
-      }
     };
 
-    const setModel = (model: string | null) => {
+    const setModel = (model: string) => {
       setSelectedModel(model);
       this.selected_model = model;
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      this.user_token = inputValue.trim() || null;
+      this.user_token = inputValue.trim();
       this.update_plugin_provider(this);
     };
 
@@ -219,7 +225,7 @@ export class UserTokenProvider extends BaseProvider {
     if (!selectedModel) {
       return (
         <ModelSelection
-          handleBack={() => setProvider(null)}
+          handleBack={() => this.#reset_provider()}
           handleClick={setModel}
           models={this.models_by_provider[modelProvider]}
         />
