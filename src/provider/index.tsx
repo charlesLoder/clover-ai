@@ -29,6 +29,34 @@ export class UserTokenProvider extends BaseProvider {
     this.#user_token = user_token || this.#user_token;
   }
 
+  /**
+   * Format a Message to the format expected by the AI SDK
+   *
+   * @param message
+   * @returns a formatted message
+   */
+  #format_messsage(message: Message) {
+    switch (message.role) {
+      case "user":
+        return {
+          role: "user",
+          content: message.content.map((c) => {
+            if (c.type === "media") {
+              return { type: "image", image: c.content.src };
+            }
+            return { type: "text", text: c.content };
+          }),
+        };
+      case "assistant":
+        return { role: "assistant", content: message.content.content };
+      case "system":
+        return { role: "system", content: message.content.content };
+      default:
+        // @ts-expect-error - this is a catch-all for unsupported roles
+        throw new Error(`Unsupported message role: ${mssg.role}`);
+    }
+  }
+
   #is_valid_model_provider_model(provider: Provider, model: string): boolean {
     return this.models_by_provider[provider].includes(model);
   }
@@ -101,49 +129,17 @@ export class UserTokenProvider extends BaseProvider {
   }
 
   async send_messages(messages: Message[], conversationHistory: Message[]): Promise<void> {
-    if (!this.user_token) {
-      throw new Error("User token is required to send messages");
-    }
-
-    if (!this.selected_provider) {
-      throw new Error("Provider must be selected before sending messages");
-    }
-
-    if (!this.selected_model) {
-      throw new Error("Model must be selected before sending messages");
-    }
+    const all_messages = [...conversationHistory, ...messages];
 
     this.set_conversation_state("assistant_responding");
 
     try {
       const model = this.setup_model(this.selected_provider, this.user_token, this.selected_model);
 
-      const allMessages = [...conversationHistory, ...messages].map((mssg) => {
-        switch (mssg.role) {
-          case "user":
-            return {
-              role: "user",
-              content: mssg.content.map((c) => {
-                if (c.type === "media") {
-                  return { type: "image", image: c.content.src };
-                }
-                return { type: "text", text: c.content };
-              }),
-            };
-          case "assistant":
-            return { role: "assistant", content: mssg.content.content };
-          case "system":
-            return { role: "system", content: mssg.content.content };
-          default:
-            // @ts-expect-error - this is a catch-all for unsupported roles
-            throw new Error(`Unsupported message role: ${mssg.role}`);
-        }
-      });
-
-      const { textStream } = await streamText({
+      const { textStream } = streamText({
         model,
         // @ts-expect-error - there is a type mismatch here, but it works
-        messages: allMessages,
+        messages: all_messages.map(this.#format_messsage),
       });
 
       const assistantMessage: Message = {
