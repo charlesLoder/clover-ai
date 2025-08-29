@@ -2,8 +2,9 @@ import { createAnthropic, type AnthropicProvider } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI, type google } from "@ai-sdk/google";
 import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
 import { Button, Heading } from "@components";
-import type { Message } from "@types";
-import { streamText } from "ai";
+import { Tool } from "@langchain/core/tools";
+import type { AssistantMessage, Message } from "@types";
+import { streamText, tool } from "ai";
 import React from "react";
 import { BaseProvider } from "../plugin/base_provider";
 import { Input } from "./components/Input";
@@ -17,14 +18,24 @@ type GoogleModels = Parameters<typeof google>[0];
 type OpenAIModels = Parameters<OpenAIProvider>[0];
 type AnthropicModels = Parameters<AnthropicProvider>[0];
 
+type UserTokenProviderProps = {
+  max_steps?: number;
+  tools?: Tool[];
+  user_token?: string | null;
+};
+
 export class UserTokenProvider extends BaseProvider {
   #selected_model: string | null = null;
   #selected_provider: Provider | null = null;
   #user_token: string | null = null;
   allowed_providers: Provider[] = ["google", "openai", "anthropic"];
+  max_steps: number;
+  tools: Tool[];
 
-  constructor({ user_token }: { user_token?: string | null } = {}) {
+  constructor({ user_token, tools = [], max_steps = 3 }: UserTokenProviderProps = {}) {
     super();
+    this.tools = tools || [];
+    this.max_steps = max_steps;
     super.status = user_token ? "ready" : "initializing";
     this.#user_token = user_token || this.#user_token;
   }
@@ -68,6 +79,33 @@ export class UserTokenProvider extends BaseProvider {
   #reset_provider() {
     this.#selected_provider = null;
     this.#reset_model();
+  }
+
+  /**
+   * Transform the tools to the format expected by the AI SDK
+   *
+   * @returns tools transformed to the format expected by the AI SDK
+   */
+  #transform_tools() {
+    return this.tools.reduce((acc, t) => {
+      return {
+        ...acc,
+        [t.name]: tool({
+          description: t.description,
+          parameters: t.schema.transform((arg) => {
+            // some LLMs (like Gemini) will error if the argument is not an object
+            // though the tool only takes a single string argument
+            if (typeof arg === "string") {
+              return { input: arg };
+            }
+            return arg;
+          }),
+          execute: async (input) => {
+            return await t.invoke(input);
+          },
+        }),
+      };
+    }, {});
   }
 
   get models_by_provider(): Record<Provider, string[]> {
@@ -128,7 +166,7 @@ export class UserTokenProvider extends BaseProvider {
     this.#user_token = user_token;
   }
 
-  async send_messages(messages: Message[], conversationHistory: Message[]): Promise<void> {
+  async generate_response(messages: Message[], conversationHistory: Message[]): Promise<void> {
     const all_messages = [...conversationHistory, ...messages];
 
     this.set_conversation_state("assistant_responding");
@@ -136,25 +174,63 @@ export class UserTokenProvider extends BaseProvider {
     try {
       const model = this.setup_model(this.selected_provider, this.user_token, this.selected_model);
 
-      const { textStream } = streamText({
+      const { fullStream } = streamText({
         model,
+        tools: this.#transform_tools(),
+        maxSteps: this.max_steps,
         // @ts-expect-error - there is a type mismatch here, but it works
         messages: all_messages.map(this.#format_messsage),
       });
 
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: { type: "text", content: "" },
-      };
+      // Track if we have a current text message being built
+      let currentTextMessage: AssistantMessage | null = null;
 
-      this.add_messages([assistantMessage]);
-
-      for await (const textPart of textStream) {
-        assistantMessage.content.content += textPart;
-        this.update_last_message(assistantMessage);
+      for await (const part of fullStream) {
+        switch (part.type) {
+          // @ts-expect-error - type is valid
+          case "tool-call": {
+            // Add a new tool message
+            const toolMessage: AssistantMessage = {
+              role: "assistant",
+              mode: "tool",
+              content: {
+                type: "text",
+                // @ts-expect-error - type is valid
+                tool_name: part.toolName,
+                // @ts-expect-error - type is valid
+                content: `Using tool: ${part.toolName}`,
+              },
+            };
+            this.add_messages([toolMessage]);
+            // Reset current text message since we just added a tool message
+            currentTextMessage = null;
+            break;
+          }
+          case "text-delta": {
+            if (currentTextMessage) {
+              // Update existing text message
+              currentTextMessage.content.content += part.textDelta;
+              this.update_last_message(currentTextMessage);
+            } else {
+              // Create new text message
+              currentTextMessage = {
+                role: "assistant",
+                mode: "text",
+                content: { type: "text", content: part.textDelta },
+              };
+              this.add_messages([currentTextMessage]);
+            }
+            break;
+          }
+          default:
+            break;
+        }
       }
-    } finally {
+
       this.set_conversation_state("idle");
+    } catch (error) {
+      console.error("Error sending messages:", error); // eslint-disable-line no-console
+      this.set_conversation_state("error");
     }
   }
 

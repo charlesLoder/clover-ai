@@ -73,7 +73,7 @@ export abstract class BaseProvider {
   /**
    * Abstract method that providers must implement to handle chat messages
    */
-  abstract send_messages(messages: Message[], conversationHistory: Message[]): Promise<void>;
+  abstract generate_response(messages: Message[], conversationHistory: Message[]): Promise<void>;
 
   get status(): ProviderStatus {
     return this.#status;

@@ -19,9 +19,14 @@ export interface MediaContent {
   type: "media";
 }
 
+export interface ToolContent extends TextContent {
+  tool_name: string;
+}
+
 export interface AssistantMessage {
-  content: TextContent;
+  content: TextContent | ToolContent;
   role: Extract<Role, "assistant">;
+  mode: "text" | "tool";
 }
 
 export interface UserMessage {
