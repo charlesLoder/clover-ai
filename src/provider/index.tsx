@@ -34,7 +34,7 @@ export class UserTokenProvider extends BaseProvider {
 
   constructor({ user_token, tools = [], max_steps = 3 }: UserTokenProviderProps = {}) {
     super();
-    this.tools = tools || [];
+    this.tools = tools;
     this.max_steps = max_steps;
     super.status = user_token ? "ready" : "initializing";
     this.#user_token = user_token || this.#user_token;
@@ -46,7 +46,7 @@ export class UserTokenProvider extends BaseProvider {
    * @param message
    * @returns a formatted message
    */
-  #format_messsage(message: Message) {
+  #format_message(message: Message) {
     switch (message.role) {
       case "user":
         return {
@@ -64,7 +64,7 @@ export class UserTokenProvider extends BaseProvider {
         return { role: "system", content: message.content.content };
       default:
         // @ts-expect-error - this is a catch-all for unsupported roles
-        throw new Error(`Unsupported message role: ${mssg.role}`);
+        throw new Error(`Unsupported message role: ${message.role}`);
     }
   }
 
@@ -179,7 +179,7 @@ export class UserTokenProvider extends BaseProvider {
         tools: this.#transform_tools(),
         maxSteps: this.max_steps,
         // @ts-expect-error - there is a type mismatch here, but it works
-        messages: all_messages.map(this.#format_messsage),
+        messages: all_messages.map(this.#format_message),
       });
 
       // Track if we have a current text message being built
