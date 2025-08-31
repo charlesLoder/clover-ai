@@ -65,7 +65,7 @@ export const ChatInput: FC = () => {
         messages: [
           {
             role: "assistant",
-            mode: "text",
+            type: "response",
             content: {
               type: "text",
               content: "Sorry, I encountered an error while processing your message.",

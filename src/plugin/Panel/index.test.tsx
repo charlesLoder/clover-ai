@@ -85,7 +85,7 @@ class MockProvider extends BaseProvider {
   async generate_response(messages: Message[], _conversationHistory: Message[]): Promise<void> {
     const response: Message = {
       role: "assistant",
-      mode: "text",
+      type: "response",
       content: {
         type: "text",
         content: `You asked: "${messages.find((m) => m.role === "user")?.content.find((c) => c.type === "text")?.content}"`,

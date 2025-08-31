@@ -23,7 +23,7 @@
   --text-content-border-radius: 0.5rem;
 }
 
-.textContent[data-mode="tool"] {
+.textContent[data-role="assistant"][data-role-type="tool-call"] {
   --text-color: var(--clover-ai-colors-primary);
   --text-content-background-color: var(--clover-ai-colors-secondaryAlt);
   --text-content-padding: 0.5rem;

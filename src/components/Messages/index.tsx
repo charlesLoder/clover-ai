@@ -46,7 +46,7 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
       }
 
       // if the last message is a tool call, we just want it to scroll into view to the nearest edge
-      if (lastMessage.role == "assistant" && lastMessage.mode === "tool") {
+      if (lastMessage.role == "assistant" && lastMessage.type === "tool-call") {
         fillerRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     }
@@ -65,12 +65,12 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
       switch (currentMessage.role) {
         case "assistant": {
           const previousMssgHeight = node.previousElementSibling?.clientHeight || 0;
-          switch (currentMessage.mode) {
+          switch (currentMessage.type) {
             // If the last message is the response from the assistant, adjust the filler height
             // to the height of the container, minus the height of the previous message, and minus the height of the current message,
             // ensuring that if the assistant message does not fill the container,
             // then there will be white space at the bottom of the container ensuring no layout shift.
-            case "text":
+            case "response":
               setFillerHeight(containerHeight - previousMssgHeight - currentMessageHeight);
               break;
 
@@ -78,7 +78,7 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
             // to the height of the container, minus the height of the previous message,
             // ensuring that the tool call message does not overlap with the content in the ::after pseudo element
             // which displays "Thinking..." when the assistant is responding.
-            case "tool":
+            case "tool-call":
               setFillerHeight(containerHeight - previousMssgHeight);
               break;
           }
@@ -99,7 +99,7 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
 
   const lastMessage = messages[messages.length - 1];
   const isLastMessageFromAssistantResponding =
-    lastMessage?.role === "assistant" && lastMessage?.mode !== "tool";
+    lastMessage?.role === "assistant" && lastMessage?.type === "response";
   return (
     <div className={style.messagesContainer} data-state={conversationState} {...props}>
       {messages.map((mssg, i) => (

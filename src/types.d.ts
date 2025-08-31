@@ -23,11 +23,19 @@ export interface ToolContent extends TextContent {
   tool_name: string;
 }
 
-export interface AssistantMessage {
-  content: TextContent | ToolContent;
-  role: Extract<Role, "assistant">;
-  mode: "text" | "tool";
+export interface ToolCall {
+  type: "tool-call";
+  content: ToolContent;
 }
+
+export interface Response {
+  type: "response";
+  content: TextContent;
+}
+
+export type AssistantMessage = {
+  role: Extract<Role, "assistant">;
+} & (Response | ToolCall);
 
 export interface UserMessage {
   content: (TextContent | MediaContent)[];

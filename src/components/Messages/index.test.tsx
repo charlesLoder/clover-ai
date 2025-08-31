@@ -15,17 +15,17 @@ describe("MessagesContainer", () => {
 
   const messages: IMessage[] = [
     { role: "user", content: [{ type: "text", content: "Hello" }] },
-    { role: "assistant", mode: "text", content: { type: "text", content: "Hi there!" } },
+    { role: "assistant", type: "response", content: { type: "text", content: "Hi there!" } },
   ];
 
   it("does not crash with empty messages array", () => {
     expect(() =>
-      render(<MessagesContainer messages={[]} conversationState="idle" />),
+      render(<MessagesContainer conversationState="idle" messages={[]} />),
     ).not.toThrow();
   });
 
   it("renders an empty filler when messages are empty", () => {
-    const { container } = render(<MessagesContainer messages={[]} conversationState="idle" />);
+    const { container } = render(<MessagesContainer conversationState="idle" messages={[]} />);
     const filler = container.querySelector('[data-role="filler"]') as HTMLElement;
     expect(filler).toBeInTheDocument();
 
@@ -33,7 +33,7 @@ describe("MessagesContainer", () => {
   });
 
   it("renders messages", () => {
-    render(<MessagesContainer messages={messages} conversationState="idle" />);
+    render(<MessagesContainer conversationState="idle" messages={messages} />);
 
     const renderedMessages = screen.getAllByTestId("message", {});
     expect(renderedMessages).toHaveLength(2);
@@ -44,7 +44,7 @@ describe("MessagesContainer", () => {
   it("updates filler height when a new user message is added", () => {
     const initialMessages: IMessage[] = [
       { role: "user", content: [{ type: "text", content: "Hello" }] },
-      { role: "assistant", mode: "text", content: { type: "text", content: "Hi there!" } },
+      { role: "assistant", type: "response", content: { type: "text", content: "Hi there!" } },
     ];
 
     // Mock clientHeight with realistic values
@@ -65,7 +65,7 @@ describe("MessagesContainer", () => {
     });
 
     const { container, rerender } = render(
-      <MessagesContainer messages={initialMessages} conversationState="idle" />,
+      <MessagesContainer conversationState="idle" messages={initialMessages} />,
     );
 
     // Add a new user message
@@ -74,7 +74,7 @@ describe("MessagesContainer", () => {
       { role: "user", content: [{ type: "text", content: "How are you?" }] },
     ];
 
-    rerender(<MessagesContainer messages={updatedMessages} conversationState="idle" />);
+    rerender(<MessagesContainer conversationState="idle" messages={updatedMessages} />);
 
     const filler = container.querySelector('[data-role="filler"]') as HTMLElement;
     expect(filler).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe("MessagesContainer", () => {
   it("updates filler height when a new assistant message is added", () => {
     const initialMessages: IMessage[] = [
       { role: "user", content: [{ type: "text", content: "Hello" }] },
-      { role: "assistant", mode: "text", content: { type: "text", content: "Hi there!" } },
+      { role: "assistant", type: "response", content: { type: "text", content: "Hi there!" } },
       { role: "user", content: [{ type: "text", content: "How are you?" }] },
     ];
 
@@ -109,7 +109,7 @@ describe("MessagesContainer", () => {
     });
 
     const { container, rerender } = render(
-      <MessagesContainer messages={initialMessages} conversationState="idle" />,
+      <MessagesContainer conversationState="idle" messages={initialMessages} />,
     );
 
     // Add a new assistant message
@@ -117,12 +117,12 @@ describe("MessagesContainer", () => {
       ...initialMessages,
       {
         role: "assistant",
-        mode: "text",
+        type: "response",
         content: { type: "text", content: "I'm doing well, thanks!" },
       },
     ];
 
-    rerender(<MessagesContainer messages={updatedMessages} conversationState="idle" />);
+    rerender(<MessagesContainer conversationState="idle" messages={updatedMessages} />);
 
     const filler = container.querySelector('[data-role="filler"]') as HTMLElement;
     expect(filler).toBeInTheDocument();

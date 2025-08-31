@@ -192,7 +192,7 @@ export class UserTokenProvider extends BaseProvider {
             // Add a new tool message
             const toolMessage: AssistantMessage = {
               role: "assistant",
-              mode: "tool",
+              type: "tool-call",
               content: {
                 type: "text",
                 // @ts-expect-error - type is valid
@@ -215,7 +215,7 @@ export class UserTokenProvider extends BaseProvider {
               // Create new text message
               currentTextMessage = {
                 role: "assistant",
-                mode: "text",
+                type: "response",
                 content: { type: "text", content: part.textDelta },
               };
               this.add_messages([currentTextMessage]);
