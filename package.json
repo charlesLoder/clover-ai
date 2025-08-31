@@ -39,6 +39,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run copy:types && npm run copy:css:esm",
+    "check": "tsc -p tsconfig.json",
     "postbuild": "esm2cjs --in dist/esm --out dist/cjs -l error && npm run copy:css:cjs",
     "copy:css:esm": "cpx \"src/**/*.css\" dist/esm",
     "copy:css:cjs": "cpx \"src/**/*.css\" dist/cjs",
