@@ -34,10 +34,21 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
   }, []);
 
   useLayoutEffect(() => {
-    // When a new user message is added,
-    // the user message should be forced to the top of the container
-    if (fillerHeight && fillerRef.current && messages[messages.length - 1]?.role !== "assistant") {
-      fillerRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (fillerHeight && fillerRef.current) {
+      const lastMessage = messages[messages.length - 1];
+      if (!lastMessage) {
+        return;
+      }
+      // When a new message is added,
+      // if it is a user message, it should be forced to the top of the container
+      if (lastMessage.role !== "assistant") {
+        fillerRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+
+      // if the last message is a tool call, we just want it to scroll into view to the nearest edge
+      if (lastMessage.role == "assistant" && lastMessage.mode === "tool") {
+        fillerRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
   }, [fillerHeight, messages]);
 
@@ -53,12 +64,25 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
 
       switch (currentMessage.role) {
         case "assistant": {
-          // If the last message is from the assistant, we want to ensure that the filler height
-          // is set to the height of the container minus the height of the current message and the height of the previous user message.
-          // ensuring that if the assistant message does not fill the container,
-          // then there will be white space at the bottom of the container ensuring no layout shift.
           const previousMssgHeight = node.previousElementSibling?.clientHeight || 0;
-          setFillerHeight(containerHeight - currentMessageHeight - previousMssgHeight);
+          switch (currentMessage.mode) {
+            // If the last message is the response from the assistant, adjust the filler height
+            // to the height of the container, minus the height of the previous message, and minus the height of the current message,
+            // ensuring that if the assistant message does not fill the container,
+            // then there will be white space at the bottom of the container ensuring no layout shift.
+            case "text":
+              setFillerHeight(containerHeight - previousMssgHeight - currentMessageHeight);
+              break;
+
+            // If the last message is a tool call from the assistant, adjust the filler height
+            // to the height of the container, minus the height of the previous message,
+            // ensuring that the tool call message does not overlap with the content in the ::after pseudo element
+            // which displays "Thinking..." when the assistant is responding.
+            case "tool":
+              setFillerHeight(containerHeight - previousMssgHeight);
+              break;
+          }
+
           break;
         }
 
@@ -73,6 +97,9 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
     [messages],
   );
 
+  const lastMessage = messages[messages.length - 1];
+  const isLastMessageFromAssistantResponding =
+    lastMessage?.role === "assistant" && lastMessage?.mode !== "tool";
   return (
     <div className={style.messagesContainer} data-state={conversationState} {...props}>
       {messages.map((mssg, i) => (
@@ -86,10 +113,13 @@ export const MessagesContainer: FC<MessagesContainerProps> = ({
         data-role="filler"
         ref={fillerRef}
         style={{
-          // the --gap variable is used to ensure the filler height takes into account the gap between messages
-          // the variable is set in the style.module.css file
+          // The --gap variable is used to ensure the filler height takes into account the gap between messages.
+          // If the last message is from the assistant and it is responding (i.e not a tool call),
+          // then we need to subtract an additional gap assuming that there are two gaps
+          // (i.e. one between the user message and assistant message, and another gap between the assistant message and this filler).
+          // The --gap variable is set in the style.module.css file
           height: `calc(${fillerHeight}px - (var(--gap) * ${
-            messages.length > 0 && messages[messages.length - 1].role === "assistant" ? 2 : 1
+            isLastMessageFromAssistantResponding ? 2 : 1
           }))`,
         }}
       />
