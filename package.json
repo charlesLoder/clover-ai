@@ -39,6 +39,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run copy:types && npm run copy:css:esm",
+    "check": "tsc -p tsconfig.json",
     "postbuild": "esm2cjs --in dist/esm --out dist/cjs -l error && npm run copy:css:cjs",
     "copy:css:esm": "cpx \"src/**/*.css\" dist/esm",
     "copy:css:cjs": "cpx \"src/**/*.css\" dist/cjs",
@@ -63,7 +64,9 @@
     "@ai-sdk/google": "^1.2.22",
     "@ai-sdk/openai": "^1.3.22",
     "@iiif/parser": "^2.2.0",
-    "ai": "^4.3.16",
+    "@langchain/community": "^0.3.53",
+    "@langchain/core": "^0.3.72",
+    "ai": "^4.3.19",
     "react-basic-contenteditable": "^1.0.6",
     "react-markdown": "^10.1.0"
   },
@@ -90,6 +93,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^9.0.9",
     "jsdom": "^26.1.0",
+    "patch-package": "^8.0.0",
     "prettier-plugin-organize-imports": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

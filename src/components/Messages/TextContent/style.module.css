@@ -9,11 +9,28 @@
   width: var(--text-content-width);
   --text-content-border-radius: 0;
   border-radius: var(--text-content-border-radius);
+
+  p {
+    margin: 0;
+  }
 }
+
 .textContent[data-role="user"] {
   --text-color: var(--clover-ai-colors-secondary);
   --text-content-background-color: var(--clover-ai-colors-accentAlt);
   --text-content-padding: 0.5rem 1rem;
   --text-content-width: fit-content;
   --text-content-border-radius: 0.5rem;
+}
+
+.textContent[data-role="assistant"][data-role-type="tool-call"] {
+  --text-color: var(--clover-ai-colors-primary);
+  --text-content-background-color: var(--clover-ai-colors-secondaryAlt);
+  --text-content-padding: 0.5rem;
+  --text-content-width: fit-content;
+  --text-content-border-radius: 0.5rem;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }

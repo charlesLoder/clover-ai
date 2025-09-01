@@ -55,7 +55,7 @@ export const ChatInput: FC = () => {
     });
 
     try {
-      await state?.provider?.send_messages([userMessage], state.messages);
+      await state?.provider?.generate_response([userMessage], state.messages);
       setTextareaValue("");
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -65,6 +65,7 @@ export const ChatInput: FC = () => {
         messages: [
           {
             role: "assistant",
+            type: "response",
             content: {
               type: "text",
               content: "Sorry, I encountered an error while processing your message.",

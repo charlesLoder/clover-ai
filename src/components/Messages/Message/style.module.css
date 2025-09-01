@@ -1,6 +1,7 @@
 .message {
   display: flex;
   flex-direction: column;
+  gap: var(--clover-ai-sizes-1);
 
   &[data-role="user"] {
     align-items: flex-end;

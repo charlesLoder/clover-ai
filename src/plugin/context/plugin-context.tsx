@@ -137,6 +137,7 @@ export function pluginReducer(
     case "updateLastMessage": {
       const newMessages = [...state.messages];
       newMessages[newMessages.length - 1] = action.message;
+      setMessagesToStorage(newMessages);
       return { ...state, messages: newMessages };
     }
     case "clearConversation": {

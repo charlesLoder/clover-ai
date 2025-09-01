@@ -15,12 +15,12 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(({ message }, re
   return (
     <div className={style.message} data-role={message.role} data-type="message" ref={ref}>
       {message.role === "assistant" && (
-        <TextContent role={message.role} textContent={message.content} />
+        <TextContent role={message.role} textContent={message.content} type={message.type} />
       )}
       {message.role === "user" &&
         message.content.map((content, index) => {
           return content.type === "text" ? (
-            <TextContent key={index} role={message.role} textContent={content} />
+            <TextContent key={index} role={message.role} textContent={content} type="text" />
           ) : content.type === "media" ? (
             <MediaContent content={content} key={index} role={message.role} />
           ) : null;

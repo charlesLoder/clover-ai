@@ -82,9 +82,10 @@ class MockProvider extends BaseProvider {
     this.status = status;
   }
 
-  async send_messages(messages: Message[], _conversationHistory: Message[]): Promise<void> {
+  async generate_response(messages: Message[], _conversationHistory: Message[]): Promise<void> {
     const response: Message = {
       role: "assistant",
+      type: "response",
       content: {
         type: "text",
         content: `You asked: "${messages.find((m) => m.role === "user")?.content.find((c) => c.type === "text")?.content}"`,
