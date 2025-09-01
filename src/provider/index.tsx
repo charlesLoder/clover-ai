@@ -78,6 +78,10 @@ export class UserTokenProvider extends BaseProvider {
 
   #reset_provider() {
     this.#selected_provider = null;
+  }
+
+  #reset_provider_and_model() {
+    this.#reset_provider();
     this.#reset_model();
   }
 
@@ -269,6 +273,12 @@ export class UserTokenProvider extends BaseProvider {
     const [inputValue, setInputValue] = React.useState("");
     /* eslint-enable react-hooks/rules-of-hooks */
 
+    const resetProvider = () => {
+      setModelProvider(null);
+      setSelectedModel(null);
+      this.#reset_provider_and_model();
+    };
+
     const setProvider = (provider: Provider) => {
       setModelProvider(provider);
       this.selected_provider = provider;
@@ -297,7 +307,7 @@ export class UserTokenProvider extends BaseProvider {
     if (!selectedModel) {
       return (
         <ModelSelection
-          handleBack={() => this.#reset_provider()}
+          handleBack={resetProvider}
           handleClick={setModel}
           models={this.models_by_provider[modelProvider]}
         />
