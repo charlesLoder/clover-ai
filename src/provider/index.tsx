@@ -1,13 +1,12 @@
 import { createAnthropic, type AnthropicProvider } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI, type google } from "@ai-sdk/google";
 import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
-import { Button, Heading } from "@components";
+import { Button, Heading, Input } from "@components";
 import { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
 import { streamText, tool } from "ai";
 import React from "react";
 import { BaseProvider } from "../plugin/base_provider";
-import { Input } from "./components/Input";
 import { ModelSelection } from "./components/ModelSelection";
 import { ProviderSelection } from "./components/ProviderSelection";
 import styles from "./style.module.css";
@@ -319,7 +318,6 @@ export class UserTokenProvider extends BaseProvider {
         <Heading level="h3">Enter API Key</Heading>
         <Input
           autoFocus={true}
-          customSize="small"
           label="Please provide an API key"
           placeholder={`Enter your ${modelProvider.charAt(0).toUpperCase() + modelProvider.slice(1)} API Key`}
           type="password"
