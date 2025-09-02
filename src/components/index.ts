@@ -9,6 +9,9 @@ export { Message } from "./Messages/Message";
 export { Heading } from "./Heading";
 export type { HeadingProps } from "./Heading";
 
+export { Input } from "./Input";
+export type { InputProps } from "./Input";
+
 export { MessagesContainer } from "./Messages";
 export type { MessagesContainerProps } from "./Messages";
 

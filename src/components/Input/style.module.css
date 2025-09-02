@@ -1,0 +1,113 @@
+.container {
+  /* input container layout */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--clover-ai-fontSizes-1) / var(--golden-ratio));
+
+  /* shared styles */
+  --accent-color: var(--clover-ai-colors-accentMuted);
+
+  input {
+    width: 100%;
+    outline: none;
+    transition:
+      border-color 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out;
+    font-size: var(--clover-ai-fontSizes-3);
+
+    --input-border-radius: var(--clover-ai-sizes-2);
+    border-radius: var(--input-border-radius);
+
+    --input-border-width: 1px;
+    border-width: var(--input-border-width);
+
+    --input-border-style: solid;
+    border-style: var(--input-border-style);
+
+    --input-border-color: var(--accent-color);
+    border-color: var(--input-border-color);
+
+    --input-padding: var(--clover-ai-sizes-2);
+    padding: var(--input-padding);
+
+    --input-background-color: initial;
+    background-color: var(--input-background-color);
+
+    &:focus {
+      --input-box-shadow-color: color-mix(in srgb, var(--input-border-color) 10%, transparent);
+      --input-box-shadow: 0 0 0 var(--clover-ai-sizes-1) var(--input-box-shadow-color);
+      box-shadow: var(--input-box-shadow);
+    }
+
+    &:user-invalid {
+      --input-border-color: var(--clover-ai-colors-error);
+    }
+  }
+
+  label,
+  .helperText {
+    font-size: var(--clover-ai-fontSizes-2);
+  }
+
+  * {
+    font-family: inherit;
+  }
+}
+
+/* Error state */
+.container[data-error="true"] {
+  --accent-color: var(--clover-ai-colors-error);
+  --input-border-color: var(--clover-ai-colors-error);
+
+  label {
+    color: var(--accent-color);
+  }
+
+  .helperText {
+    color: var(--accent-color);
+  }
+}
+
+.container:has(input:required) {
+  label::after {
+    content: " *";
+    color: var(--clover-ai-colors-error);
+  }
+}
+
+/* Size styles */
+.container[data-size="small"] {
+  /* decrease the font sizes by 1 */
+  input {
+    font-size: var(--clover-ai-fontSizes-2);
+  }
+
+  label,
+  .helperText {
+    font-size: var(--clover-ai-fontSizes-1);
+  }
+}
+
+.container[data-size="large"] {
+  /* increase the font sizes by 2 */
+  input {
+    --input-padding: var(--clover-ai-sizes-3);
+    font-size: var(--clover-ai-fontSizes-5);
+  }
+
+  label,
+  .helperText {
+    font-size: var(--clover-ai-fontSizes-3);
+  }
+}
+
+/* Input prop styles */
+input:disabled {
+  cursor: not-allowed;
+}
+
+input:read-only:focus {
+  --input-box-shadow-color: none;
+  --input-box-shadow: none;
+}
