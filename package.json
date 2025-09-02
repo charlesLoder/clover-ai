@@ -25,10 +25,10 @@
       "import": "./dist/esm/components/index.js",
       "require": "./dist/cjs/components/index.js"
     },
-    "./provider": {
-      "types": "./dist/esm/provider/index.d.ts",
-      "import": "./dist/esm/provider/index.js",
-      "require": "./dist/cjs/provider/index.js"
+    "./providers": {
+      "types": "./dist/esm/providers/index.d.ts",
+      "import": "./dist/esm/providers/index.js",
+      "require": "./dist/cjs/providers/index.js"
     },
     "./types": {
       "types": "./dist/types.d.ts",
