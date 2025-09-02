@@ -24,15 +24,15 @@ export const Input: React.FC<InputProps> = ({
       {label && <label htmlFor={inputId}>{label}</label>}
       <input
         {...props}
+        aria-errormessage={error ? inputId + "-error-message" : undefined}
+        aria-invalid={!!error}
+        id={inputId}
+        style={style}
         aria-describedby={
           [helperText ? inputId + "-helper-text" : null, error ? inputId + "-error-message" : null]
             .filter(Boolean)
             .join(" ") || undefined
         }
-        aria-errormessage={error ? inputId + "-error-message" : undefined}
-        aria-invalid={!!error}
-        id={inputId}
-        style={style}
       />
       {helperText && (
         <div className={styles.helperText} id={inputId + "-helper-text"}>
