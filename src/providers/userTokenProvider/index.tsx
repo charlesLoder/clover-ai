@@ -6,7 +6,7 @@ import { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
 import { streamText, tool } from "ai";
 import React from "react";
-import { BaseProvider } from "../plugin/base_provider";
+import { BaseProvider } from "../../plugin/base_provider";
 import { ModelSelection } from "./components/ModelSelection";
 import { ProviderSelection } from "./components/ProviderSelection";
 import styles from "./style.module.css";

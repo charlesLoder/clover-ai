@@ -5,7 +5,7 @@ import Viewer from "@samvera/clover-iiif/viewer";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { PluginControl, PluginPanel } from "../src/plugin";
-import { UserTokenProvider } from "../src/provider";
+import { UserTokenProvider } from "../src/providers";
 
 const wiki_tool = new WikipediaQueryRun({
   topKResults: 3,
