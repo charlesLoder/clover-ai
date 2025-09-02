@@ -27,7 +27,6 @@ export const Default: Story = {
 };
 
 export const WithLabel: Story = {
-  name: "With Label",
   args: {
     label: "Username",
     placeholder: "Enter your username",
@@ -35,7 +34,6 @@ export const WithLabel: Story = {
 };
 
 export const WithHelperText: Story = {
-  name: "With Helper Text",
   args: {
     label: "Email",
     placeholder: "Enter your email",
@@ -44,7 +42,6 @@ export const WithHelperText: Story = {
 };
 
 export const WithError: Story = {
-  name: "With Error",
   args: {
     label: "Password",
     placeholder: "Enter your password",
