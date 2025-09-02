@@ -291,7 +291,7 @@ export class UserTokenProvider extends BaseProvider {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       this.user_token = inputValue.trim();
-      this.update_plugin_provider(this);
+      this.update_plugin_provider();
     };
 
     if (!modelProvider) {

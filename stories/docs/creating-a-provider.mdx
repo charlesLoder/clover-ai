@@ -18,7 +18,7 @@ To create a custom provider, we need to extend the `BaseProvider` class.
 
 This class provides the necessary methods and properties to interact with Clover AI.
 
-```typescript
+```tsx
 // my-custom-provider.tsx
 import { BaseProvider } from "clover-ai";
 
@@ -66,11 +66,8 @@ export class MyCustomProvider extends BaseProvider {
     const handleClick = () => {
       this.#user_accepted = true;
 
-      // dispatch a message to Clover AI updating the provider with the new status
-      this.dispatch({
-        type: "updateProvider",
-        provider: this,
-      });
+      // update the Plugin state with the modified provider
+      this.update_plugin_provider();
     };
 
     return (
@@ -88,7 +85,7 @@ export class MyCustomProvider extends BaseProvider {
 
 The provider class has access to the plugin's `dispatch` method, which allows it to send messages to Clover AI.
 
-When the user clicks the button, we set `#user_accepted` to `true` and dispatch an `updateProvider` message to Clover AI with the updated provider instance.
+When the user clicks the button, we set `#user_accepted` to `true` and update the plugin state with the modified provider using `this.update_plugin_provider()`.
 
 This will trigger Clover AI to re-render the provider with the new status.
 
@@ -120,7 +117,7 @@ export class MyCustomProvider extends BaseProvider {
     const handleClick = () => {
       this.#user_accepted = true;
       // update the Plugin state with the modified provider
-      this.update_plugin_provider(this);
+      this.update_plugin_provider();
     };
 
     return (

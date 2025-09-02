@@ -63,10 +63,10 @@ export abstract class BaseProvider {
   /**
    *  Update the Plugin state with the current provider.
    */
-  protected update_plugin_provider(provider: BaseProvider) {
+  protected update_plugin_provider() {
     this.dispatch({
       type: "updateProvider",
-      provider,
+      provider: this,
     });
   }
 
