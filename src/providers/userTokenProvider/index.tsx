@@ -232,7 +232,7 @@ export class UserTokenProvider extends BaseProvider {
 
       this.set_conversation_state("idle");
     } catch (error) {
-      console.error("Error sending messages:", error); // eslint-disable-line no-console
+      console.error(error); // eslint-disable-line no-console
       this.set_conversation_state("error");
     }
   }

@@ -1,4 +1,5 @@
 .messagesContainer {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -8,16 +9,26 @@
   scrollbar-color: var(--clover-ai-colors-secondaryAlt) transparent;
   overflow-y: scroll;
 
+  &::after {
+    font-style: italic;
+    --line-height: 1.5;
+    line-height: var(--line-height);
+    /* The multiplier -2 is used to adjust the positioning of the content text
+         relative to the preceding content. It ensures the text appears slightly above
+         its default position for better visual alignment. */
+    margin-block-start: calc(-2 * (var(--line-height) * var(--clover-ai-sizes-3)));
+  }
+
   &[data-state="assistant_responding"] {
     &::after {
       content: "Thinking...";
-      font-style: italic;
-      --line-height: 1.5;
-      line-height: var(--line-height);
-      /* The multiplier -2 is used to adjust the positioning of the "Thinking..." text
-         relative to the preceding content. It ensures the text appears slightly above
-         its default position for better visual alignment. */
-      margin-block-start: calc(-2 * (var(--line-height) * var(--clover-ai-sizes-3)));
+    }
+  }
+
+  &[data-state="error"] {
+    &::after {
+      content: "An error occurred. Please try again.";
+      color: var(--clover-ai-colors-error);
     }
   }
 
