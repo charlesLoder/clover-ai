@@ -47,7 +47,7 @@ function getDimensions(resource: any): { height: number; width: number } {
  * ```ts
  * formatCaption("Thumbnail", resource);
  * // "Thumbnail\n(100 x 200)"
- * ``
+ * ```
  */
 function formatCaption(topline: string, resource: ContentResource) {
   const { width, height } = getDimensions(resource);
