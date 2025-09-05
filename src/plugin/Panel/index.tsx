@@ -56,7 +56,7 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
         type: "setSystemPrompt",
         systemPrompt: `You are a helpful assistant that can answer questions about the item in the viewer. Here is the manifest data for the item:\n\n${JSON.stringify(state.manifest["metadata"], null, 2)}`,
       });
-      const label = state.manifest.label;
+      const label = state.manifest?.label ?? undefined;
       const title = getLabelByUserLanguage(label);
       setItemTitle(title.length > 0 ? title[0] : "this item");
     }
