@@ -16,10 +16,9 @@
 }
 
 .content {
-  /* display: grid; */
-  /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
   display: flex;
   gap: var(--clover-ai-sizes-2);
+  flex-wrap: wrap;
 
   figcaption {
     --figure-caption-font-size: var(--clover-ai-sizes-3);

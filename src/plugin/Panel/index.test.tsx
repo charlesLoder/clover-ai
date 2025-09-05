@@ -70,6 +70,23 @@ const mockClover = {
           };
         return null;
       }),
+      serialize: vi.fn((query) => {
+        if (query.type === "Canvas")
+          return {
+            id: "canvas-1",
+            type: "Canvas",
+            label: { en: ["Test Canvas"] },
+            thumbnail: [
+              {
+                id: "thumbnail-1",
+                type: "Image",
+                format: "image/jpeg",
+              },
+            ],
+            items: [],
+          };
+        return null;
+      }),
     },
     activeManifest: "manifest-1",
     activeCanvas: "canvas-1",
