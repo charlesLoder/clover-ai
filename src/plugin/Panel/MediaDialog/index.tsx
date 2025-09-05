@@ -177,7 +177,7 @@ const Paintings: FC<{ canvas: Canvas }> = ({ canvas }) => {
           figcaption={m.caption}
           imgObjectFit="cover"
           initialState={isMediaInSelectedMedia(m, state.selectedMedia) ? "selected" : "unselected"}
-          key={m.id}
+          key={`painting-${m.id}`}
           src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
         />
@@ -235,7 +235,7 @@ const Placeholder: FC<{ placeholder: NonNullable<Canvas["placeholderCanvas"]> }>
           figcaption={m.caption}
           imgObjectFit="cover"
           initialState={isMediaInSelectedMedia(m, state.selectedMedia) ? "selected" : "unselected"}
-          key={m.id}
+          key={`placeholder-${m.id}`}
           src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
         />
@@ -271,7 +271,7 @@ const Thumbnails: FC<{ thumbnails: ContentResource[] }> = ({ thumbnails }) => {
       {media.map((thumbnail, index) => (
         <ImageSelect
           figcaption={thumbnail.caption}
-          key={index}
+          key={`thumbnail-${index}`}
           src={thumbnail.src}
           initialState={
             isMediaInSelectedMedia(thumbnail, state.selectedMedia) ? "selected" : "unselected"
