@@ -4,7 +4,7 @@ import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
 import { Button, Heading, Input } from "@components";
 import { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
-import { streamText, tool } from "ai";
+import { CoreMessage, streamText, tool } from "ai";
 import React from "react";
 import { BaseProvider } from "../../plugin/base_provider";
 import { ModelSelection } from "./components/ModelSelection";
@@ -45,7 +45,7 @@ export class UserTokenProvider extends BaseProvider {
    * @param message
    * @returns a formatted message
    */
-  #format_message(message: Message) {
+  #format_message(message: Message): CoreMessage {
     switch (message.role) {
       case "user":
         return {
@@ -181,7 +181,6 @@ export class UserTokenProvider extends BaseProvider {
         model,
         tools: this.#transform_tools(),
         maxSteps: this.max_steps,
-        // @ts-expect-error - there is a type mismatch here, but it works
         messages: all_messages.map(this.#format_message),
       });
 
