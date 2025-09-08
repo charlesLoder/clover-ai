@@ -77,7 +77,11 @@ describe("pluginReducer", () => {
 
   it("should handle addMessages", () => {
     const newMessages: Message[] = [
-      { role: "user", content: [{ type: "text", content: "Hello" }] },
+      {
+        role: "user",
+        content: [{ type: "text", content: "Hello" }],
+        context: { canvas: {} as any },
+      },
     ];
     const action: PluginContextActions = { type: "addMessages", messages: newMessages };
     const newState = pluginReducer(mockInitialState, action);
@@ -90,7 +94,11 @@ describe("pluginReducer", () => {
       ...mockInitialState,
       messages: [
         { role: "system", content: { type: "text", content: "System prompt" } },
-        { role: "user", content: [{ type: "text", content: "Hello" }] },
+        {
+          role: "user",
+          content: [{ type: "text", content: "Hello" }],
+          context: { canvas: {} as any },
+        },
       ],
     };
     const action: PluginContextActions = { type: "clearConversation" };
@@ -279,7 +287,13 @@ describe("PluginContextProvider", () => {
   });
 
   it("should initialize with messages from storage", () => {
-    const storedMessages = [{ role: "user", content: [{ type: "text", content: "from storage" }] }];
+    const storedMessages = [
+      {
+        role: "user",
+        content: [{ type: "text", content: "from storage" }],
+        context: { canvas: {} as any },
+      },
+    ];
     (loadMessagesFromStorage as Mock).mockReturnValue(storedMessages);
 
     const TestMessagesComponent = () => {
