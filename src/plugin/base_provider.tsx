@@ -62,13 +62,15 @@ export abstract class BaseProvider {
    * @returns a system prompt string based on the manifest data
    */
   protected generate_system_prompt(manifest: ManifestNormalized) {
+    const title = getLabelByUserLanguage(manifest.label ?? undefined)?.[0] ?? "N/A";
+    const summary = getLabelByUserLanguage(manifest.summary ?? undefined)?.[0] ?? "N/A";
     return dedent`
       You are a helpful assistant that can answer questions about the item in the image viewer. 
       
       Here is the manifest data for the item:
 
-      ## Title: ${getLabelByUserLanguage(manifest.label ?? undefined)[0] ?? "N/A"}
-      ## Summary: ${manifest.summary ? getLabelByUserLanguage(manifest.summary)[0] : "N/A"}
+      ## Title: ${title}
+      ## Summary: ${summary}
       ## Raw Metadata: ${JSON.stringify(manifest.metadata)}
       `;
   }
