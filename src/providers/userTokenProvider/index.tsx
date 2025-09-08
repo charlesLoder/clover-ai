@@ -6,6 +6,7 @@ import { serializeConfigPresentation3, Traverse } from "@iiif/parser";
 import type { Canvas } from "@iiif/presentation-3";
 import { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
+import { getLabelByUserLanguage } from "@utils";
 import { CoreMessage, streamText, tool } from "ai";
 import dedent from "dedent";
 import React from "react";
@@ -52,8 +53,7 @@ export class UserTokenProvider extends BaseProvider {
    *
    * Use an arrow function so `this` references the `UserTokenProvider` class
    */
-  #format_message = (message: Message): CoreMessage => {
-    debugger;
+  #format_message = (message: Message, index: number, messages: Message[]): CoreMessage => {
     switch (message.role) {
       case "user":
         return {
@@ -63,45 +63,55 @@ export class UserTokenProvider extends BaseProvider {
               return { type: "image", image: c.content.src };
             }
 
-            const canvas = this.plugin_state.vault.serialize<Canvas>(
-              {
-                type: "Canvas",
-                id: message.context.canvas.id,
-              },
-              serializeConfigPresentation3,
-            );
+            const prevMessages = messages.slice(0, index);
+            const lastUserMessage = prevMessages.findLast((m) => m.role === "user");
+            let context = "";
 
-            const annotationTexts: string[] = [];
-            const traverse = new Traverse({
-              annotation: [
-                (a) => {
-                  if (
-                    a.body &&
-                    typeof a.body === "object" &&
-                    "type" in a.body &&
-                    a.body.type === "TextualBody" &&
-                    a.body.value
-                  ) {
-                    annotationTexts.push(a.body.value);
-                  }
+            // only add new context to the messages when it changes to save on tokens
+            if (
+              !lastUserMessage ||
+              lastUserMessage.context.canvas.id !== message.context.canvas.id
+            ) {
+              const canvas = this.plugin_state.vault.serialize<Canvas>(
+                {
+                  type: "Canvas",
+                  id: message.context.canvas.id,
                 },
-              ],
-            });
+                serializeConfigPresentation3,
+              );
 
-            traverse.traverseCanvas(canvas);
+              const annotationTexts: string[] = [];
+              const traverse = new Traverse({
+                annotation: [
+                  (a) => {
+                    if (
+                      a.body &&
+                      typeof a.body === "object" &&
+                      "type" in a.body &&
+                      a.body.type === "TextualBody" &&
+                      a.body.value
+                    ) {
+                      annotationTexts.push(a.body.value);
+                    }
+                  },
+                ],
+              });
 
-            // prettier-ignore
-            const context = dedent.withOptions({ alignValues: true })`
-            ## Context
-            The following context is about the current canvas in the image viewer.
-            Use this information if possible to inform your answer
-            
-            ### Canvas${canvas.label ? `
-            - Label: ${canvas.label}` : ""}${annotationTexts.length ? `
-            - Annotations: ${annotationTexts.join(", ")}` : ""}
-            `;
+              traverse.traverseCanvas(canvas);
 
-            return { type: "text", text: c.content + "\n" + context };
+              // prettier-ignore
+              context = dedent.withOptions({ alignValues: true })`
+              ## Context
+              The following context is about the latest Canvas in the image viewer.
+              Use this information if possible to inform your answer.
+              
+              ### Canvas${canvas.label ? `
+              - Label: ${getLabelByUserLanguage(canvas.label)[0]}` : ""}${annotationTexts.length ? `
+              - Annotations: ${annotationTexts.join(", ")}` : ""}
+              `;
+            }
+
+            return { type: "text", text: c.content + `${context ? "\n" + context : ""}` };
           }),
         };
       case "assistant":
@@ -223,8 +233,6 @@ export class UserTokenProvider extends BaseProvider {
 
     try {
       const model = this.setup_model(this.selected_provider, this.user_token, this.selected_model);
-
-      debugger;
 
       const { fullStream } = streamText({
         model,
