@@ -14,7 +14,7 @@ describe("MessagesContainer", () => {
   });
 
   const messages: IMessage[] = [
-    { role: "user", content: [{ type: "text", content: "Hello" }] },
+    { role: "user", content: [{ type: "text", content: "Hello" }], context: { canvas: {} as any } },
     { role: "assistant", type: "response", content: { type: "text", content: "Hi there!" } },
   ];
 
@@ -43,7 +43,11 @@ describe("MessagesContainer", () => {
 
   it("updates filler height when a new user message is added", () => {
     const initialMessages: IMessage[] = [
-      { role: "user", content: [{ type: "text", content: "Hello" }] },
+      {
+        role: "user",
+        content: [{ type: "text", content: "Hello" }],
+        context: { canvas: {} as any },
+      },
       { role: "assistant", type: "response", content: { type: "text", content: "Hi there!" } },
     ];
 
@@ -71,7 +75,11 @@ describe("MessagesContainer", () => {
     // Add a new user message
     const updatedMessages: IMessage[] = [
       ...initialMessages,
-      { role: "user", content: [{ type: "text", content: "How are you?" }] },
+      {
+        role: "user",
+        content: [{ type: "text", content: "How are you?" }],
+        context: { canvas: {} as any },
+      },
     ];
 
     rerender(<MessagesContainer conversationState="idle" messages={updatedMessages} />);
@@ -86,9 +94,17 @@ describe("MessagesContainer", () => {
 
   it("updates filler height when a new assistant message is added", () => {
     const initialMessages: IMessage[] = [
-      { role: "user", content: [{ type: "text", content: "Hello" }] },
+      {
+        role: "user",
+        content: [{ type: "text", content: "Hello" }],
+        context: { canvas: {} as any },
+      },
       { role: "assistant", type: "response", content: { type: "text", content: "Hi there!" } },
-      { role: "user", content: [{ type: "text", content: "How are you?" }] },
+      {
+        role: "user",
+        content: [{ type: "text", content: "How are you?" }],
+        context: { canvas: {} as any },
+      },
     ];
 
     // Mock clientHeight with realistic values
