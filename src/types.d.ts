@@ -39,6 +39,14 @@ export type AssistantMessage = {
 
 export interface UserMessage {
   content: (TextContent | MediaContent)[];
+  /** Context that can be added to user messages when generating a response */
+  context: {
+    canvas: {
+      annotations: string[];
+      id: string;
+      label: string | undefined;
+    };
+  };
   role: Extract<Role, "user">;
 }
 

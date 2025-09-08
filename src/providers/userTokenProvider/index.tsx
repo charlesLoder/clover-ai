@@ -5,6 +5,7 @@ import { Button, Heading, Input } from "@components";
 import { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
 import { CoreMessage, streamText, tool } from "ai";
+import dedent from "dedent";
 import React from "react";
 import { BaseProvider } from "../../plugin/base_provider";
 import { ModelSelection } from "./components/ModelSelection";
@@ -54,7 +55,20 @@ export class UserTokenProvider extends BaseProvider {
             if (c.type === "media") {
               return { type: "image", image: c.content.src };
             }
-            return { type: "text", text: c.content };
+
+            const canvas = message.context.canvas;
+            // prettier-ignore
+            const context = dedent.withOptions({ alignValues: true })`
+            ## Context
+            The following context is about the current canvas in the image viewer.
+            Use this information if possible to inform your answer
+            
+            ### Canvas${canvas.label ? `
+            - Label: ${canvas.label}` : ""}${canvas.annotations.length ? `
+            - Annotations: ${canvas.annotations.join(", ")}` : ""}
+            `;
+
+            return { type: "text", text: c.content + "\n" + context };
           }),
         };
       case "assistant":

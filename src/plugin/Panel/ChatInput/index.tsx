@@ -1,7 +1,10 @@
 import { Button, Textarea } from "@components";
 import { usePlugin } from "@context";
 import { Add, ArrowUp, Clear } from "@icons";
+import { Traverse, serializeConfigPresentation3 } from "@iiif/parser";
+import { Canvas } from "@iiif/presentation-3";
 import { MediaContent, UserMessage } from "@types";
+import { getLabelByUserLanguage } from "@utils";
 import type { FC } from "react";
 import { useState } from "react";
 import { SelectedMedia } from "./SelectedMedia";
@@ -30,6 +33,33 @@ export const ChatInput: FC = () => {
     setTextareaError("");
     setFormState("loading");
 
+    const canvas = state.vault.serialize<Canvas>(
+      {
+        type: "Canvas",
+        id: state.activeCanvas.id,
+      },
+      serializeConfigPresentation3,
+    );
+
+    const annotationTexts: string[] = [];
+    const traverse = new Traverse({
+      annotation: [
+        (a) => {
+          if (
+            a.body &&
+            typeof a.body === "object" &&
+            "type" in a.body &&
+            a.body.type === "TextualBody" &&
+            a.body.value
+          ) {
+            annotationTexts.push(a.body.value);
+          }
+        },
+      ],
+    });
+
+    traverse.traverseCanvas(canvas);
+
     const userMessage: UserMessage = {
       role: "user",
       content: [
@@ -38,6 +68,13 @@ export const ChatInput: FC = () => {
           content: input,
         },
       ],
+      context: {
+        canvas: {
+          annotations: annotationTexts,
+          id: state.activeCanvas.id,
+          label: getLabelByUserLanguage(state.activeCanvas.label ?? undefined)[0],
+        },
+      },
     };
 
     if (state.selectedMedia.length) {
