@@ -22,14 +22,9 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
   useEffect(() => {
     if (provider) {
       provider.update_dispatch(dispatch);
+      provider.update_plugin_state(state);
+      provider.set_system_prompt();
       dispatch({ type: "updateProvider", provider });
-    }
-
-    if (!state.systemPrompt) {
-      dispatch({
-        type: "setSystemPrompt",
-        systemPrompt: `You are a helpful assistant that can answer questions about the item in the viewer`,
-      });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -51,16 +46,11 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
 
   useEffect(() => {
     if (state.manifest) {
-      // Update system prompt with manifest metadata
-      dispatch({
-        type: "setSystemPrompt",
-        systemPrompt: `You are a helpful assistant that can answer questions about the item in the viewer. Here is the manifest data for the item:\n\n${JSON.stringify(state.manifest["metadata"], null, 2)}`,
-      });
       const label = state.manifest?.label ?? undefined;
       const title = getLabelByUserLanguage(label);
       setItemTitle(title.length > 0 ? title[0] : "this item");
     }
-  }, [state.manifest, dispatch]);
+  }, [state.manifest]);
 
   useEffect(() => {
     dispatch({
