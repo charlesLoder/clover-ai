@@ -38,6 +38,9 @@ export const ChatInput: FC = () => {
           content: input,
         },
       ],
+      context: {
+        canvas: state.activeCanvas,
+      },
     };
 
     if (state.selectedMedia.length) {

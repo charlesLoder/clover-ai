@@ -2,9 +2,13 @@ import { createAnthropic, type AnthropicProvider } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI, type google } from "@ai-sdk/google";
 import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
 import { Button, Heading, Input } from "@components";
+import { serializeConfigPresentation3, Traverse } from "@iiif/parser";
+import type { Canvas } from "@iiif/presentation-3";
 import { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
-import { streamText, tool } from "ai";
+import { getLabelByUserLanguage } from "@utils";
+import { CoreMessage, streamText, tool } from "ai";
+import dedent from "dedent";
 import React from "react";
 import { BaseProvider } from "../../plugin/base_provider";
 import { ModelSelection } from "./components/ModelSelection";
@@ -44,8 +48,12 @@ export class UserTokenProvider extends BaseProvider {
    *
    * @param message
    * @returns a formatted message
+   *
+   * @privateRemarks
+   *
+   * Use an arrow function so `this` references the `UserTokenProvider` class
    */
-  #format_message(message: Message) {
+  #format_message = (message: Message, index: number, messages: Message[]): CoreMessage => {
     switch (message.role) {
       case "user":
         return {
@@ -54,7 +62,56 @@ export class UserTokenProvider extends BaseProvider {
             if (c.type === "media") {
               return { type: "image", image: c.content.src };
             }
-            return { type: "text", text: c.content };
+
+            const prevMessages = messages.slice(0, index);
+            const lastUserMessage = prevMessages.findLast((m) => m.role === "user");
+            let context = "";
+
+            // only add new context to the messages when it changes to save on tokens
+            if (
+              !lastUserMessage ||
+              lastUserMessage.context.canvas.id !== message.context.canvas.id
+            ) {
+              const canvas = this.plugin_state.vault.serialize<Canvas>(
+                {
+                  type: "Canvas",
+                  id: message.context.canvas.id,
+                },
+                serializeConfigPresentation3,
+              );
+
+              const annotationTexts: string[] = [];
+              const traverse = new Traverse({
+                annotation: [
+                  (a) => {
+                    if (
+                      a.body &&
+                      typeof a.body === "object" &&
+                      "type" in a.body &&
+                      a.body.type === "TextualBody" &&
+                      a.body.value
+                    ) {
+                      annotationTexts.push(a.body.value);
+                    }
+                  },
+                ],
+              });
+
+              traverse.traverseCanvas(canvas);
+
+              // prettier-ignore
+              context = dedent.withOptions({ alignValues: true })`
+              ## Context
+              The following context is about the latest Canvas in the image viewer.
+              Use this information if possible to inform your answer.
+              
+              ### Canvas${canvas.label ? `
+              - Label: ${getLabelByUserLanguage(canvas.label)[0]}` : ""}${annotationTexts.length ? `
+              - Annotations: ${annotationTexts.join(", ")}` : ""}
+              `;
+            }
+
+            return { type: "text", text: c.content + `${context ? "\n" + context : ""}` };
           }),
         };
       case "assistant":
@@ -65,7 +122,7 @@ export class UserTokenProvider extends BaseProvider {
         // @ts-expect-error - this is a catch-all for unsupported roles
         throw new Error(`Unsupported message role: ${message.role}`);
     }
-  }
+  };
 
   #is_valid_model_provider_model(provider: Provider, model: string): boolean {
     return this.models_by_provider[provider].includes(model);
@@ -181,7 +238,6 @@ export class UserTokenProvider extends BaseProvider {
         model,
         tools: this.#transform_tools(),
         maxSteps: this.max_steps,
-        // @ts-expect-error - there is a type mismatch here, but it works
         messages: all_messages.map(this.#format_message),
       });
 
