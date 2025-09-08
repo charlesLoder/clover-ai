@@ -2,6 +2,8 @@ import { createAnthropic, type AnthropicProvider } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI, type google } from "@ai-sdk/google";
 import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
 import { Button, Heading, Input } from "@components";
+import { serializeConfigPresentation3, Traverse } from "@iiif/parser";
+import type { Canvas } from "@iiif/presentation-3";
 import { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
 import { CoreMessage, streamText, tool } from "ai";
@@ -45,8 +47,13 @@ export class UserTokenProvider extends BaseProvider {
    *
    * @param message
    * @returns a formatted message
+   *
+   * @privateRemarks
+   *
+   * Use an arrow function so `this` references the `UserTokenProvider` class
    */
-  #format_message(message: Message): CoreMessage {
+  #format_message = (message: Message): CoreMessage => {
+    debugger;
     switch (message.role) {
       case "user":
         return {
@@ -56,7 +63,33 @@ export class UserTokenProvider extends BaseProvider {
               return { type: "image", image: c.content.src };
             }
 
-            const canvas = message.context.canvas;
+            const canvas = this.plugin_state.vault.serialize<Canvas>(
+              {
+                type: "Canvas",
+                id: message.context.canvas.id,
+              },
+              serializeConfigPresentation3,
+            );
+
+            const annotationTexts: string[] = [];
+            const traverse = new Traverse({
+              annotation: [
+                (a) => {
+                  if (
+                    a.body &&
+                    typeof a.body === "object" &&
+                    "type" in a.body &&
+                    a.body.type === "TextualBody" &&
+                    a.body.value
+                  ) {
+                    annotationTexts.push(a.body.value);
+                  }
+                },
+              ],
+            });
+
+            traverse.traverseCanvas(canvas);
+
             // prettier-ignore
             const context = dedent.withOptions({ alignValues: true })`
             ## Context
@@ -64,8 +97,8 @@ export class UserTokenProvider extends BaseProvider {
             Use this information if possible to inform your answer
             
             ### Canvas${canvas.label ? `
-            - Label: ${canvas.label}` : ""}${canvas.annotations.length ? `
-            - Annotations: ${canvas.annotations.join(", ")}` : ""}
+            - Label: ${canvas.label}` : ""}${annotationTexts.length ? `
+            - Annotations: ${annotationTexts.join(", ")}` : ""}
             `;
 
             return { type: "text", text: c.content + "\n" + context };
@@ -79,7 +112,7 @@ export class UserTokenProvider extends BaseProvider {
         // @ts-expect-error - this is a catch-all for unsupported roles
         throw new Error(`Unsupported message role: ${message.role}`);
     }
-  }
+  };
 
   #is_valid_model_provider_model(provider: Provider, model: string): boolean {
     return this.models_by_provider[provider].includes(model);
@@ -190,6 +223,8 @@ export class UserTokenProvider extends BaseProvider {
 
     try {
       const model = this.setup_model(this.selected_provider, this.user_token, this.selected_model);
+
+      debugger;
 
       const { fullStream } = streamText({
         model,

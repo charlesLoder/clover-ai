@@ -34,14 +34,14 @@ export abstract class BaseProvider {
     this.#plugin_dispatch = dispatch;
   }
 
-  private get plugin_state(): PluginContextStore {
+  protected get plugin_state(): PluginContextStore {
     if (!this.#plugin_state) {
       throw new Error("Provider plugin_state not initialized.");
     }
     return this.#plugin_state;
   }
 
-  private set plugin_state(state: PluginContextStore) {
+  protected set plugin_state(state: PluginContextStore) {
     this.#plugin_state = state;
   }
 

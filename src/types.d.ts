@@ -1,3 +1,4 @@
+import type { CanvasNormalized } from "@iiif/presentation-3-normalized";
 export type ConversationState = "idle" | "assistant_responding" | "error";
 
 export type Role = "assistant" | "system" | "user";
@@ -41,11 +42,7 @@ export interface UserMessage {
   content: (TextContent | MediaContent)[];
   /** Context that can be added to user messages when generating a response */
   context: {
-    canvas: {
-      annotations: string[];
-      id: string;
-      label: string | undefined;
-    };
+    canvas: CanvasNormalized;
   };
   role: Extract<Role, "user">;
 }
