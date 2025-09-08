@@ -67,6 +67,7 @@
     "@langchain/community": "^0.3.53",
     "@langchain/core": "^0.3.72",
     "ai": "^4.3.19",
+    "dedent": "^1.7.0",
     "react-basic-contenteditable": "^1.0.6",
     "react-markdown": "^10.1.0"
   },
