@@ -1,0 +1,86 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Architecture & Design" />
+
+# Architecture & Design
+
+Clover AI is a plugin that extends the Clover-IIIF viewer to enable AI-powered conversations about digital collections.
+The architecture is designed with clear separation of concerns, allowing maximum flexibility for consumers to integrate with any LLM provider or API strategy.
+
+## 🏢 System Architecture
+
+### Core Components
+
+The system consists of two main parts:
+
+- **Clover-IIIF**: The IIIF image viewer that displays digital collections and manages manifest data
+- **Clover-AI**: This plugin that adds AI chat capabilities while understanding the viewer's current state
+
+### Plugin Architecture Layers
+
+#### Core Plugin Layer
+
+The plugin handles the foundational concerns of the chat interface:
+
+- **State Management**: Tracks conversation messages, user media selections, and conversation state
+- **UI Components**: Provides a [library of reusable presentational components](./?path=/docs/components-about--docs) for building chat interfaces
+- **Message Types**: Provides a standardized message format for user, system, and assistant messages
+- **IIIF Context Access**: Receives and stores current manifest and canvas data from the viewer, making it available to providers
+
+#### Provider Abstraction Layer
+
+The `BaseProvider` class defines a contract between the plugin and LLM implementations:
+
+- **Abstract Interface**: Requires implementation of `generate_response()` method for handling chat messages
+- **Plugin Integration**: Provides methods for updating conversation state and adding messages to the chat
+- **Setup Flow**: Optional `SetupComponent()` for provider-specific initialization UI
+
+#### Consumer Implementation Layer
+
+Consumers implement their own provider class by extending `BaseProvider`:
+
+- **LLM Communication**: Handle API calls, authentication, and response processing
+- **Custom Logic**: Implement any provider-specific features like rate limiting or content filtering
+- **Deployment Flexibility**: Choose between client-side API calls, server-side proxies, or hybrid approaches
+- **IIIF Data Usage**: Decide how (or if) to use the available manifest and canvas context in their AI interactions
+
+## 🗂️ Separation of Concerns
+
+### What the Plugin Manages
+
+- Chat UI components and styling
+- Message history and conversation state
+- Receiving and storing IIIF viewer context (manifest and canvas data)
+- Media selection and attachment handling
+
+### What Consumers Implement
+
+- LLM provider integration and API communication
+- Authentication and API key management
+- Response streaming and error handling
+- Provider-specific setup and configuration
+- How to use (or ignore) the available IIIF context data
+
+## 🔄 Data Flow
+
+The plugin orchestrates a clear data flow between components:
+
+1. **IIIF Context**: The plugin automatically receives manifest and canvas data from the Clover-IIIF viewer and stores it in plugin state
+2. **Context Availability**: The BaseProvider makes this IIIF data available to implementations and provides a default `generate_system_prompt()` method, but providers choose how (or if) to use this context
+3. **User Messages**: User input and media selections are captured by the plugin's UI components
+4. **Provider Communication**: Messages are passed to the consumer's provider implementation via the abstract interface
+5. **Response Handling**: The provider streams responses back through plugin methods to update the conversation
+
+## 💪 Flexibility by Design
+
+This architecture enables consumers to implement virtually any LLM strategy:
+
+- **Multiple Providers**: Switch between OpenAI, Anthropic, Google, or local models
+- **Hybrid Approaches**: Combine multiple models for different types of responses
+- **Custom Workflows**: Add content moderation, caching, or specialized processing
+- **Deployment Options**: Client-side APIs, server-side proxies, or edge functions
+- **Authentication Methods**: API keys, OAuth, server-side token management, or custom auth flows
+
+The plugin focuses on the chat experience while giving consumers complete control over how AI responses are generated and delivered.
+
+> **Note**: The codebase uses different naming conventions to distinguish between plugin code (`camelCase`) and provider code (`snake_case`), helping developers understand which layer they're working with.
