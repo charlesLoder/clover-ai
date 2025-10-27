@@ -1,0 +1,56 @@
+.requirementsBox {
+  padding: var(--clover-ai-space-4);
+  background-color: var(--clover-ai-colors-secondaryMuted);
+  border-radius: var(--clover-ai-radii-3);
+  font-size: var(--clover-ai-fontSizes-2);
+
+  ul {
+    color: var(--clover-ai-colors-primary);
+    list-style-position: inside;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.termsText {
+  font-size: var(--clover-ai-fontSizes-1);
+  color: color-mix(in srgb, var(--clover-ai-colors-primary) 80%, transparent);
+
+  a {
+    color: var(--clover-ai-colors-accent);
+  }
+
+  a:hover {
+    color: var(--clover-ai-colors-accentAlt);
+  }
+}
+
+.errorBox {
+  padding: var(--clover-ai-space-4);
+  background-color: var(--clover-ai-colors-errorMuted);
+  border-radius: var(--clover-ai-radii-3);
+  font-size: var(--clover-ai-fontSizes-2);
+  color: var(--clover-ai-colors-error);
+}
+
+.errorNote {
+  font-size: var(--clover-ai-fontSizes-1);
+  opacity: 0.8;
+  color: var(--clover-ai-colors-primary);
+}
+
+.modelInfo {
+  padding: calc(var(--clover-ai-space-3) * 0.75);
+  background-color: var(--clover-ai-colors-secondaryMuted);
+  border-radius: var(--clover-ai-radii-2);
+  font-size: var(--clover-ai-fontSizes-1);
+  opacity: 0.7;
+  color: var(--clover-ai-colors-primary);
+}
+
+.modelCode {
+  font-family: monospace;
+  background-color: var(--clover-ai-colors-secondaryAlt);
+  padding: calc(var(--clover-ai-space-1) * 0.5) var(--clover-ai-space-1);
+  border-radius: var(--clover-ai-radii-1);
+}
