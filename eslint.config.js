@@ -93,6 +93,7 @@ export default tseslint.config(
       "build/**",
       "*.config.js",
       "*.config.ts",
+      "src/**/*.test.{js,jsx,ts,tsx}",
       "vite-env.d.ts",
     ],
   },
