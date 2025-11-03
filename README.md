@@ -2,6 +2,8 @@
 
 Add AI capabilities to Clover-IIIF using any LLM provider.
 
+https://github.com/user-attachments/assets/998161f6-c07d-4b1b-8028-165a971e9d41
+
 ## 🚀 Quick start
 
 Visit the [docs site](https://charlesloder.github.io/clover-ai/?path=/docs/welcome--docs) to learn more about Clover AI and get started.
