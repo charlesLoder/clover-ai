@@ -9,7 +9,7 @@ import type { AssistantMessage, Message } from "@types";
 import { getLabelByUserLanguage } from "@utils";
 import { CoreMessage, streamText, tool } from "ai";
 import dedent from "dedent";
-import React from "react";
+import { useState } from "react";
 import { BaseProvider } from "../../plugin/base_provider";
 import { ModelSelection } from "./components/ModelSelection";
 import { ProviderSelection } from "./components/ProviderSelection";
@@ -323,9 +323,9 @@ export class UserTokenProvider extends BaseProvider {
 
   SetupComponent() {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const [modelProvider, setModelProvider] = React.useState<Provider | null>(null);
-    const [selectedModel, setSelectedModel] = React.useState<string | null>(null);
-    const [inputValue, setInputValue] = React.useState("");
+    const [modelProvider, setModelProvider] = useState<Provider | null>(null);
+    const [selectedModel, setSelectedModel] = useState<string | null>(null);
+    const [inputValue, setInputValue] = useState("");
     /* eslint-enable react-hooks/rules-of-hooks */
 
     const resetProvider = () => {
