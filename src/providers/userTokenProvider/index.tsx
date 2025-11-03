@@ -4,10 +4,10 @@ import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
 import { Button, Heading, Input } from "@components";
 import { serializeConfigPresentation3, Traverse } from "@iiif/parser";
 import type { Canvas } from "@iiif/presentation-3";
-import { Tool } from "@langchain/core/tools";
+import type { Tool } from "@langchain/core/tools";
 import type { AssistantMessage, Message } from "@types";
 import { getLabelByUserLanguage } from "@utils";
-import { CoreMessage, streamText, tool } from "ai";
+import { ModelMessage, stepCountIs, streamText, tool } from "ai";
 import dedent from "dedent";
 import { useState } from "react";
 import { BaseProvider } from "../../plugin/base_provider";
@@ -53,7 +53,7 @@ export class UserTokenProvider extends BaseProvider {
    *
    * Use an arrow function so `this` references the `UserTokenProvider` class
    */
-  #format_message = (message: Message, index: number, messages: Message[]): CoreMessage => {
+  #format_message = (message: Message, index: number, messages: Message[]): ModelMessage => {
     switch (message.role) {
       case "user":
         return {
@@ -152,7 +152,7 @@ export class UserTokenProvider extends BaseProvider {
         ...acc,
         [t.name]: tool({
           description: t.description,
-          parameters: t.schema.transform((arg) => {
+          inputSchema: t.schema.transform((arg) => {
             // some LLMs (like Gemini) will error if the argument is not an object
             // though the tool only takes a single string argument
             if (typeof arg === "string") {
@@ -160,9 +160,7 @@ export class UserTokenProvider extends BaseProvider {
             }
             return arg;
           }),
-          execute: async (input) => {
-            return await t.invoke(input);
-          },
+          execute: async (input) => await t.invoke(input),
         }),
       };
     }, {});
@@ -237,7 +235,7 @@ export class UserTokenProvider extends BaseProvider {
       const { fullStream } = streamText({
         model,
         tools: this.#transform_tools(),
-        maxSteps: this.max_steps,
+        stopWhen: stepCountIs(this.max_steps),
         messages: all_messages.map(this.#format_message),
       });
 
@@ -246,7 +244,6 @@ export class UserTokenProvider extends BaseProvider {
 
       for await (const part of fullStream) {
         switch (part.type) {
-          // @ts-expect-error - type is valid
           case "tool-call": {
             // Add a new tool message
             const toolMessage: AssistantMessage = {
@@ -254,9 +251,7 @@ export class UserTokenProvider extends BaseProvider {
               type: "tool-call",
               content: {
                 type: "text",
-                // @ts-expect-error - type is valid
                 tool_name: part.toolName,
-                // @ts-expect-error - type is valid
                 content: `Using tool: ${part.toolName}`,
               },
             };
@@ -268,14 +263,14 @@ export class UserTokenProvider extends BaseProvider {
           case "text-delta": {
             if (currentTextMessage) {
               // Update existing text message
-              currentTextMessage.content.content += part.textDelta;
+              currentTextMessage.content.content += part.text;
               this.update_last_message(currentTextMessage);
             } else {
               // Create new text message
               currentTextMessage = {
                 role: "assistant",
                 type: "response",
-                content: { type: "text", content: part.textDelta },
+                content: { type: "text", content: part.text },
               };
               this.add_messages([currentTextMessage]);
             }
@@ -304,7 +299,6 @@ export class UserTokenProvider extends BaseProvider {
       case "openai": {
         const openai = createOpenAI({
           apiKey: token,
-          compatibility: "strict",
         });
         return openai(modelName as OpenAIModels);
       }
