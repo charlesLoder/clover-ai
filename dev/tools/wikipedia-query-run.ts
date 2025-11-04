@@ -190,6 +190,7 @@ export class WikipediaQueryRun extends Tool {
    */
   protected buildUrl<P extends UrlParameters>(parameters: P): string {
     const nonUndefinedParams: [string, string][] = Object.entries(parameters)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => [key, `${value}`]);
     const searchParams = new URLSearchParams(nonUndefinedParams);
