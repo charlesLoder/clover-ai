@@ -1,5 +1,5 @@
 /**
- * Vite configuration for development tooling only (Vitest, Storybook) and extended in `dev/vite.config.ts` for local a development server.
+ * Vite configuration for development tooling only (Vitest, Storybook) and extended in `dev/vite.config.ts` for a local development server.
  *
  * The production of library build relies on TypeScript (tsc) and not Vite bundling.
  *
