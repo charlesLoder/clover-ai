@@ -7,6 +7,7 @@ export interface TextareaProps extends React.HTMLAttributes<HTMLTextAreaElement>
   labelDisplay?: "hidden" | "visible";
   error?: string;
   helperText?: string;
+  innerText?: string;
   variant?: "default" | "bordered" | "filled";
   size?: "small" | "medium" | "large";
   id?: string;
@@ -18,6 +19,7 @@ export const Textarea: FC<TextareaProps> = ({
   labelDisplay = "visible",
   error,
   helperText,
+  innerText,
   variant = "default",
   size = "medium",
   children,
@@ -26,6 +28,8 @@ export const Textarea: FC<TextareaProps> = ({
   const textareaId = `textarea-contenteditable-container`;
   const labelId = `textarea-label`;
   const helperId = `textarea-helper`;
+
+  console.log(innerText);
 
   return (
     <div className={styles.container}>
@@ -48,7 +52,11 @@ export const Textarea: FC<TextareaProps> = ({
         data-variant={variant}
         id={textareaId}
       >
-        <textarea placeholder={labelDisplay === "hidden" ? label : undefined} {...rest}></textarea>
+        <textarea
+          placeholder={labelDisplay === "hidden" ? label : undefined}
+          {...rest}
+          value={innerText ?? ""}
+        ></textarea>
         {children && <div className={styles.childrenContainer}>{children}</div>}
       </div>
       {(error || helperText) && (

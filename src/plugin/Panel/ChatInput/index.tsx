@@ -10,7 +10,6 @@ export const ChatInput: FC = () => {
   const { dispatch, state } = usePlugin();
   const [textareaValue, setTextareaValue] = useState("");
   const [textareaError, setTextareaError] = useState("");
-
   const [formState, setFormState] = useState<"idle" | "loading" | "error" | "success">("idle");
 
   function clearConversation() {
@@ -28,6 +27,7 @@ export const ChatInput: FC = () => {
     }
 
     setTextareaError("");
+    setTextareaValue("");
     setFormState("loading");
 
     const userMessage: UserMessage = {
@@ -60,7 +60,6 @@ export const ChatInput: FC = () => {
 
     try {
       await state?.provider?.generate_response([userMessage], state.messages);
-      setTextareaValue("");
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Error sending message:", error);
@@ -97,7 +96,7 @@ export const ChatInput: FC = () => {
         label="What would you like to know?"
         labelDisplay="hidden"
         size="small"
-        // updatedContent={formState !== "idle" ? "" : undefined}
+        innerText={textareaValue}
         onChange={({ currentTarget }) => {
           setTextareaValue(currentTarget.value);
           if (currentTarget.value?.trim() && textareaError) {
