@@ -33,7 +33,7 @@
 }
 
 /* Base textarea styles */
-.textarea {
+.textareaWrapper {
   display: flex;
   flex-direction: column;
   gap: var(--clover-ai-sizes-2);
@@ -50,61 +50,79 @@
   border-width: calc(var(--clover-ai-sizes-1) / calc(var(--golden-ratio) * 2));
   border-style: solid;
   background-color: transparent;
+  margin-block-end: var(--clover-ai-sizes-1);
 
   /* configurable styles */
-  --textarea-border-color: var(--clover-ai-colors-accent, #e6e8eb);
+  --textarea-border-color: var(--clover-ai-colors-accent);
   border-color: var(--textarea-border-color);
 
-  &:has(*:focus) {
-    --textarea-border-color: var(--clover-ai-colors-accentMuted);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  --textarea-box-shadow-color: color-mix(
+    in srgb,
+    var(--clover-ai-colors-accentMuted) 10%,
+    transparent
+  );
+  --textarea-box-shadow: 0 0 0 var(--clover-ai-sizes-1) var(--textarea-box-shadow-color);
+
+  &:has(textarea:focus) {
+    box-shadow: var(--textarea-box-shadow);
   }
 }
 
-.textarea[data-error="true"] {
+.textareaWrapper[data-error="true"] {
   --textarea-border-color: var(--clover-ai-colors-error);
+  &:has(textarea:focus) {
+    --textarea-box-shadow-color: color-mix(in srgb, var(--clover-ai-colors-error) 10%, transparent);
+  }
 }
 
 /* Variant styles */
-.textarea[data-variant="bordered"] {
+.textareaWrapper[data-variant="bordered"] {
   border: 2px solid var(--colors-border, #e5e7eb);
   background-color: transparent;
 }
 
-.textarea[data-variant="filled"] {
+.textareaWrapper[data-variant="filled"] {
   border: 1px solid transparent;
   background-color: var(--colors-background, #f9fafb);
 }
 
 /* Size styles */
-.textarea[data-size="small"] {
+.textareaWrapper[data-size="small"] {
   padding: 0.5rem;
   font-size: 0.875rem;
   min-height: 1.5rem;
 }
 
-.textarea[data-size="medium"] {
+.textareaWrapper[data-size="medium"] {
   padding: 0.618rem;
   font-size: 1rem;
   min-height: 3rem;
 }
 
-.textarea[data-size="large"] {
+.textareaWrapper[data-size="large"] {
   padding: 0.75rem;
   font-size: 1.125rem;
   min-height: 3.5rem;
 }
 
-.contentEditableContainer {
+textarea {
   cursor: pointer;
   margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  resize: none;
+  field-sizing: content;
+  min-height: 2em;
+  max-height: 4em;
+  scrollbar-color: var(--clover-ai-colors-secondaryAlt) transparent;
+  overflow-y: scroll;
+}
 
-  & > *[contenteditable] {
-    white-space: pre-wrap;
-    outline: 0px solid transparent;
-    padding: 0;
-    width: 100%;
-  }
+textarea:focus {
+  outline: none;
 }
 
 .placeholder {

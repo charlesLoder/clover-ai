@@ -97,10 +97,10 @@ export const ChatInput: FC = () => {
         label="What would you like to know?"
         labelDisplay="hidden"
         size="small"
-        updatedContent={formState !== "idle" ? "" : undefined}
-        onChange={(input) => {
-          setTextareaValue(input);
-          if (input?.trim() && textareaError) {
+        // updatedContent={formState !== "idle" ? "" : undefined}
+        onChange={({ currentTarget }) => {
+          setTextareaValue(currentTarget.value);
+          if (currentTarget.value?.trim() && textareaError) {
             setTextareaError("");
           }
         }}

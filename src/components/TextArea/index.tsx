@@ -1,11 +1,8 @@
-import type { ComponentProps, FC } from "react";
+import type { FC } from "react";
 import React from "react";
-import ContentEditable from "react-basic-contenteditable";
 import styles from "./style.module.css";
 
-type ContentEditableProps = ComponentProps<typeof ContentEditable>;
-
-export interface TextareaProps extends ContentEditableProps {
+export interface TextareaProps extends React.HTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   labelDisplay?: "hidden" | "visible";
   error?: string;
@@ -45,19 +42,13 @@ export const Textarea: FC<TextareaProps> = ({
       <div
         aria-describedby={helperId}
         aria-labelledby={label ? labelId : undefined}
-        className={styles.textarea}
+        className={styles.textareaWrapper}
         data-error={!!error}
         data-size={size}
         data-variant={variant}
         id={textareaId}
       >
-        <ContentEditable
-          autoFocus={true}
-          containerClassName={styles.contentEditableContainer}
-          placeholder={labelDisplay === "hidden" ? label : undefined}
-          placeholderClassName={styles.placeholder}
-          {...rest}
-        />
+        <textarea placeholder={labelDisplay === "hidden" ? label : undefined} {...rest}></textarea>
         {children && <div className={styles.childrenContainer}>{children}</div>}
       </div>
       {(error || helperText) && (
