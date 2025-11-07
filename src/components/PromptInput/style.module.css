@@ -1,42 +1,21 @@
-:root {
-  --content-editable-padding: 0.85rem;
-}
-/* Container styles */
-.container {
+.promptInputContainer {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-sizes-1);
 }
 
-/* Label styles */
-.label {
-  display: block;
-  margin-bottom: 0.5rem;
+.errorMessage {
+  margin-top: 0.25rem;
   font-size: 0.875rem;
-  font-weight: 500;
-  color: inherit;
+  color: var(--clover-ai-colors-error);
 }
 
-.label[data-error="true"] {
-  color: #ef4444;
-}
-
-/* Visually hidden but accessible to screen readers */
-.visuallyHidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-/* Base textarea styles */
-.textareaWrapper {
+.promptInput {
   display: flex;
   flex-direction: column;
   gap: var(--clover-ai-sizes-2);
+  padding: var(--clover-ai-sizes-2);
   border-radius: 0.5rem;
   outline: none;
   transition:
@@ -68,41 +47,11 @@
   }
 }
 
-.textareaWrapper[data-error="true"] {
+.promptInput[data-error="true"] {
   --textarea-border-color: var(--clover-ai-colors-error);
   &:has(textarea:focus) {
     --textarea-box-shadow-color: color-mix(in srgb, var(--clover-ai-colors-error) 10%, transparent);
   }
-}
-
-/* Variant styles */
-.textareaWrapper[data-variant="bordered"] {
-  border: 2px solid var(--colors-border, #e5e7eb);
-  background-color: transparent;
-}
-
-.textareaWrapper[data-variant="filled"] {
-  border: 1px solid transparent;
-  background-color: var(--colors-background, #f9fafb);
-}
-
-/* Size styles */
-.textareaWrapper[data-size="small"] {
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  min-height: 1.5rem;
-}
-
-.textareaWrapper[data-size="medium"] {
-  padding: 0.618rem;
-  font-size: 1rem;
-  min-height: 3rem;
-}
-
-.textareaWrapper[data-size="large"] {
-  padding: 0.75rem;
-  font-size: 1.125rem;
-  min-height: 3.5rem;
 }
 
 textarea {
@@ -143,14 +92,4 @@ textarea:focus {
     display: flex;
     gap: 0.5rem;
   }
-}
-
-.helperText {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--colors-text-secondary, #6b7280);
-}
-
-.helperText[data-error="true"] {
-  color: var(--clover-ai-colors-error);
 }

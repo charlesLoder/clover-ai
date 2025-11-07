@@ -1,4 +1,4 @@
-import { Button, Textarea } from "@components";
+import { Button, PromptInput } from "@components";
 import { usePlugin } from "@context";
 import { Add, ArrowUp, Clear } from "@icons";
 import { MediaContent, UserMessage } from "@types";
@@ -90,13 +90,9 @@ export const ChatInput: FC = () => {
         handleSubmit(e);
       }}
     >
-      <Textarea
+      <PromptInput
         error={textareaError}
-        id="chat-input"
-        label="What would you like to know?"
-        labelDisplay="hidden"
-        size="small"
-        innerText={textareaValue}
+        value={textareaValue}
         onChange={({ currentTarget }) => {
           setTextareaValue(currentTarget.value);
           if (currentTarget.value?.trim() && textareaError) {
@@ -144,7 +140,7 @@ export const ChatInput: FC = () => {
             <ArrowUp />
           </Button>
         </div>
-      </Textarea>
+      </PromptInput>
     </form>
   );
 };
