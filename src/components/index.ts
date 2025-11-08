@@ -1,8 +1,8 @@
 export { Button } from "./Button";
 export type { ButtonProps } from "./Button";
 
-export { Textarea } from "./TextArea";
-export type { TextareaProps } from "./TextArea";
+export { PromptInput } from "./PromptInput";
+export type { PromptInputProps } from "./PromptInput";
 
 export { Message } from "./Messages/Message";
 

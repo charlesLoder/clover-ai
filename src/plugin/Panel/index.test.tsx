@@ -13,26 +13,29 @@ vi.mock("@components", async (importOriginal) => {
   const original = (await importOriginal()) as Record<string, any>;
   return {
     ...original,
-    Textarea: ({
+    PromptInput: ({
       onChange,
+      value,
+      error,
       children,
     }: {
+      value?: string;
+      error?: string;
       children: React.ReactNode;
-      onChange: (value: string) => void;
+      onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
     }) => {
-      const [value, setValue] = React.useState("");
       return (
         <div>
-          <input
-            aria-label="What would you like to know?"
-            type="text"
-            value={value}
-            onChange={(e) => {
-              setValue(e.target.value);
-              onChange(e.target.value);
-            }}
-          />
-          {children}
+          {error && <div>{error}</div>}
+          <div>
+            <textarea
+              aria-label="Write your prompt to chat with a model"
+              placeholder="What would you like to know?"
+              value={value}
+              onChange={onChange}
+            />
+            {children}
+          </div>
         </div>
       );
     },
@@ -133,7 +136,7 @@ describe("Plugin > Panel", () => {
 
     expect(screen.getByRole("heading", { name: /Chat about Test Manifest/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("textbox", { name: "What would you like to know?" }),
+      screen.getByRole("textbox", { name: "Write your prompt to chat with a model" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Submit question" })).toBeInTheDocument();
   });
@@ -144,7 +147,7 @@ describe("Plugin > Panel", () => {
     render(<Panel {...mockClover} provider={mockProvider} />);
 
     const textbox = screen.getByRole("textbox", {
-      name: "What would you like to know?",
+      name: "Write your prompt to chat with a model",
     });
     await user.type(textbox, "What is the name of this work?");
     await user.click(screen.getByRole("button", { name: "Submit question" }));

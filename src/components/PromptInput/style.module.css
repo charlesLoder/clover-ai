@@ -1,0 +1,88 @@
+.promptInputContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-sizes-1);
+}
+
+.errorMessage {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--clover-ai-colors-error);
+}
+
+.promptInput {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-sizes-2);
+  padding: var(--clover-ai-sizes-2);
+  border-radius: 0.5rem;
+  outline: none;
+  transition:
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+  font-family: inherit;
+  font-size: inherit;
+  resize: none;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  border-width: calc(var(--clover-ai-sizes-1) / calc(var(--golden-ratio) * 2));
+  border-style: solid;
+  background-color: transparent;
+  margin-block-end: var(--clover-ai-sizes-1);
+
+  /* configurable styles */
+  --textarea-border-color: var(--clover-ai-colors-accentMuted);
+  border-color: var(--textarea-border-color);
+
+  --textarea-box-shadow-color: color-mix(
+    in srgb,
+    var(--clover-ai-colors-accentMuted) 10%,
+    transparent
+  );
+  --textarea-box-shadow: 0 0 0 var(--clover-ai-sizes-1) var(--textarea-box-shadow-color);
+
+  &:has(textarea:focus) {
+    --textarea-border-color: var(--clover-ai-colors-accent);
+    box-shadow: var(--textarea-box-shadow);
+  }
+}
+
+.promptInput[data-error="true"] {
+  --textarea-border-color: var(--clover-ai-colors-error);
+  &:has(textarea:focus) {
+    --textarea-border-color: var(--clover-ai-colors-error);
+    --textarea-box-shadow-color: color-mix(in srgb, var(--clover-ai-colors-error) 10%, transparent);
+  }
+}
+
+textarea {
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  resize: none;
+  field-sizing: content;
+  min-height: 2em;
+  max-height: 4em;
+  scrollbar-color: var(--clover-ai-colors-secondaryAlt) transparent;
+  overflow-y: scroll;
+}
+
+textarea:focus {
+  outline: none;
+}
+
+.childrenContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  > * {
+    display: flex;
+    gap: 0.5rem;
+  }
+}

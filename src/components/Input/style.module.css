@@ -19,8 +19,7 @@
     --input-border-radius: var(--clover-ai-sizes-2);
     border-radius: var(--input-border-radius);
 
-    --input-border-width: 1px;
-    border-width: var(--input-border-width);
+    border-width: calc(var(--clover-ai-sizes-1) / calc(var(--golden-ratio) * 2));
 
     --input-border-style: solid;
     border-style: var(--input-border-style);
@@ -37,10 +36,12 @@
     &:focus {
       --input-box-shadow-color: color-mix(in srgb, var(--input-border-color) 10%, transparent);
       --input-box-shadow: 0 0 0 var(--clover-ai-sizes-1) var(--input-box-shadow-color);
+      --input-border-color: var(--clover-ai-colors-accent);
       box-shadow: var(--input-box-shadow);
     }
 
-    &:user-invalid {
+    &:user-invalid,
+    &[aria-invalid="true"] {
       --input-border-color: var(--clover-ai-colors-error);
     }
   }
