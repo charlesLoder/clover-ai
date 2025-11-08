@@ -76,20 +76,11 @@ textarea:focus {
   outline: none;
 }
 
-.placeholder {
-  color: var(--colors-text-placeholder, #9ca3af);
-  pointer-events: none;
-  /* the ContentEditable injects inline styles, this number helps the placeholder line up */
-  padding-inline-start: var(--content-editable-padding);
-}
-
 .childrenContainer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  /* the ContentEditable injects inline styles, this number helps the placeholder line up */
-  padding-inline: var(--content-editable-padding);
   > * {
     display: flex;
     gap: 0.5rem;
