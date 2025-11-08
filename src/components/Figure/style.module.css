@@ -2,6 +2,10 @@
   margin: 0;
   display: grid;
 
+  &:has(img) {
+    width: min-content;
+  }
+
   /* configurable styles */
   --figure-border-radius: var(--clover-ai-radii-2);
   --figure-caption-color: var(--clover-ai-colors-primaryMuted);
