@@ -32,7 +32,7 @@
   margin-block-end: var(--clover-ai-sizes-1);
 
   /* configurable styles */
-  --textarea-border-color: var(--clover-ai-colors-accent);
+  --textarea-border-color: var(--clover-ai-colors-accentMuted);
   border-color: var(--textarea-border-color);
 
   --textarea-box-shadow-color: color-mix(
@@ -43,6 +43,7 @@
   --textarea-box-shadow: 0 0 0 var(--clover-ai-sizes-1) var(--textarea-box-shadow-color);
 
   &:has(textarea:focus) {
+    --textarea-border-color: var(--clover-ai-colors-accent);
     box-shadow: var(--textarea-box-shadow);
   }
 }
@@ -50,6 +51,7 @@
 .promptInput[data-error="true"] {
   --textarea-border-color: var(--clover-ai-colors-error);
   &:has(textarea:focus) {
+    --textarea-border-color: var(--clover-ai-colors-error);
     --textarea-box-shadow-color: color-mix(in srgb, var(--clover-ai-colors-error) 10%, transparent);
   }
 }
