@@ -84,6 +84,7 @@ export const ChatInput: FC = () => {
     dispatch({ type: "setMediaDialogState", state: "open" });
   }
 
+  const PromptInputButtons = state?.provider?.PromptInputButtons?.bind(state.provider) ?? null; // bind `this`;
   return (
     <form
       onSubmit={async (e) => {
@@ -108,6 +109,7 @@ export const ChatInput: FC = () => {
           )}
         </div>
         <div className="controls">
+          {PromptInputButtons && <PromptInputButtons />}
           <Button
             aria-label="Clear conversation"
             shape="circle"
