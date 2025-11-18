@@ -114,7 +114,6 @@ export const ChatInput: FC = () => {
             size="small"
             state={formState !== "success" ? formState : undefined}
             title="Clear conversation"
-            type="button"
             onClick={clearConversation}
           >
             <Clear />
@@ -125,7 +124,6 @@ export const ChatInput: FC = () => {
             size="small"
             state={formState !== "success" ? formState : undefined}
             title="Add media"
-            type="button"
             onClick={openDialog}
           >
             <Add />
@@ -136,6 +134,7 @@ export const ChatInput: FC = () => {
             size="small"
             state={formState !== "success" ? formState : undefined}
             title="Submit question"
+            type="submit"
           >
             <ArrowUp />
           </Button>

@@ -22,7 +22,6 @@ export const SelectedMedia: React.FC<SelectedMediaProps> = ({ media }) => {
         shape="circle"
         size="small"
         title="Remove media"
-        type="button"
         variant="secondary"
         onClick={() => handleClick(media.id)}
       >

@@ -19,6 +19,7 @@ export const Button: FC<ButtonProps> = ({
   state = "idle",
   children,
   disabled,
+  type = "button",
   ...props
 }) => {
   return (
@@ -30,6 +31,7 @@ export const Button: FC<ButtonProps> = ({
       data-state={state}
       data-variant={variant}
       disabled={state === "loading" || disabled}
+      type={type}
     >
       {children}
     </button>

@@ -375,8 +375,8 @@ export class UserTokenProvider extends BaseProvider {
           onChange={(e) => setInputValue(e.target.value)}
         />
         <div className={styles.buttonGroup}>
-          <Button>Submit</Button>
-          <Button type="button" variant="ghost" onClick={() => setSelectedModel(null)}>
+          <Button type="submit">Submit</Button>
+          <Button variant="ghost" onClick={() => setSelectedModel(null)}>
             Back
           </Button>
         </div>
