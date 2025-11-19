@@ -1,6 +1,6 @@
 import type { Button } from "@components";
 import type { PluginContextActions, PluginContextStore } from "@context";
-import { ManifestNormalized } from "@iiif/presentation-3-normalized";
+import type { ManifestNormalized } from "@iiif/presentation-3-normalized";
 import type { ConversationState, Message } from "@types";
 import { getLabelByUserLanguage } from "@utils";
 import dedent from "dedent";
