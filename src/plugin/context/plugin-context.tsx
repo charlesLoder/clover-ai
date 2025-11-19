@@ -66,7 +66,7 @@ interface SetVaultAction {
   type: "setVault";
 }
 
-interface SystemPromptAction {
+interface SetSystemPromptAction {
   systemPrompt: string;
   type: "setSystemPrompt";
 }
@@ -84,16 +84,16 @@ interface UpdateLastMessageAction {
 export type PluginContextActions =
   | AddMessageAction
   | ClearConversation
-  | UpdateProviderAction
-  | UpdateLastMessageAction
+  | SetActiveCanvasAction
   | SetConversationState
   | SetManifestAction
-  | SetActiveCanvasAction
   | SetMediaDialogStateAction
-  | SetSelectedMediaAction
   | SetOSDViewerAction
+  | SetSelectedMediaAction
+  | SetSystemPromptAction
   | SetVaultAction
-  | SystemPromptAction;
+  | UpdateProviderAction
+  | UpdateLastMessageAction;
 
 /** Default values not inherited from the Clover Viewer */
 type InitPluginContextStore = Omit<PluginContextStore, "vault" | "activeCanvas" | "manifest">;
