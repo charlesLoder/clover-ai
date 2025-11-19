@@ -21,7 +21,7 @@ export function PluginPanelComponent(props: CloverPlugin & PluginProps) {
 
   useEffect(() => {
     if (provider) {
-      provider.update_dispatch(dispatch);
+      provider.update_plugin_dispatch(dispatch);
       provider.update_plugin_state(state);
       provider.set_system_prompt();
       dispatch({ type: "updateProvider", provider });

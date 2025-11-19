@@ -10,7 +10,6 @@ type ProviderStatus = "initializing" | "ready" | "error";
 
 /**
  * A Provider class that handles interfacing with the Plugin.
- *
  */
 export abstract class BaseProvider {
   #plugin_dispatch: Dispatch<PluginContextActions> | undefined;
@@ -21,6 +20,9 @@ export abstract class BaseProvider {
     this.#status = "ready";
   }
 
+  /**
+   * Get the dispatch function to allow the Provider to update Plugin state
+   */
   private get plugin_dispatch(): Dispatch<PluginContextActions> {
     if (!this.#plugin_dispatch) {
       throw new Error("Provider dispatch not initialized.");
@@ -29,12 +31,15 @@ export abstract class BaseProvider {
   }
 
   /**
-   * Sets the dispatch function to allow the provider to update Plugin state
+   * Sets the dispatch function to allow the Provider to update Plugin state
    */
   private set plugin_dispatch(dispatch: Dispatch<PluginContextActions>) {
     this.#plugin_dispatch = dispatch;
   }
 
+  /**
+   * Get the current Plugin state
+   */
   protected get plugin_state(): PluginContextStore {
     if (!this.#plugin_state) {
       throw new Error("Provider plugin_state not initialized.");
@@ -42,6 +47,9 @@ export abstract class BaseProvider {
     return this.#plugin_state;
   }
 
+  /**
+   * Sets the current Plugin state
+   */
   protected set plugin_state(state: PluginContextStore) {
     this.#plugin_state = state;
   }
@@ -97,7 +105,7 @@ export abstract class BaseProvider {
   }
 
   /**
-   *  Update the Plugin state with the current provider.
+   *  Update the Plugin state with the current Provider.
    */
   protected update_plugin_provider() {
     this.plugin_dispatch({
@@ -111,10 +119,16 @@ export abstract class BaseProvider {
    */
   abstract generate_response(messages: Message[], conversationHistory: Message[]): Promise<void>;
 
+  /**
+   * Get the current status of the Provider
+   */
   get status(): ProviderStatus {
     return this.#status;
   }
 
+  /**
+   * Set the current status of the Provider
+   */
   set status(value: ProviderStatus) {
     this.#status = value;
   }
@@ -139,16 +153,24 @@ export abstract class BaseProvider {
   }
 
   /**
-   * A component that providers can implement to set up their UI.
+   * A component that a Provider can implement before users can chat.
+   *
+   * @remarks This is useful for setting up authentication or other pre-requisites.
    */
   SetupComponent(): JSX.Element {
     return <></>;
   }
 
-  update_dispatch(dispatch: Dispatch<PluginContextActions>) {
+  /**
+   * Update the reference to the Plugin's dispatch function
+   */
+  update_plugin_dispatch(dispatch: Dispatch<PluginContextActions>) {
     this.plugin_dispatch = dispatch;
   }
 
+  /**
+   * Update the reference to the Plugin's state
+   */
   update_plugin_state(context: PluginContextStore) {
     this.plugin_state = context;
   }
