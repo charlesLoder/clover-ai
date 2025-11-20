@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import Viewer from "@samvera/clover-iiif/viewer";
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { PluginControl, PluginPanel } from "../src/plugin";
 import { UserTokenProvider } from "../src/providers";
@@ -11,13 +11,21 @@ const wiki_tool = new WikipediaQueryRun({
   maxDocContentLength: 4000,
 });
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+function App() {
+  const [iiifContent, setIiifContent] = useState<string>(
+    import.meta.env.VITE_IIIF_URL ||
+      "https://api.dc.library.northwestern.edu/api/v2/works/8a833741-74a8-40dc-bd1d-c416a3b1bb38?as=iiif",
+  );
+
+  const tokenProvider = new UserTokenProvider({
+    tools: [wiki_tool],
+    viewer_iiif_content_callback: (iiif_resource) => {
+      setIiifContent(iiif_resource);
+    },
+  });
+  return (
     <Viewer
-      iiifContent={
-        import.meta.env.VITE_IIIF_URL ||
-        "https://api.dc.library.northwestern.edu/api/v2/works/8a833741-74a8-40dc-bd1d-c416a3b1bb38?as=iiif"
-      }
+      iiifContent={iiifContent}
       plugins={[
         {
           id: "clover-ai",
@@ -32,11 +40,17 @@ createRoot(document.getElementById("root")!).render(
               en: ["AI Chat"],
             },
             componentProps: {
-              provider: new UserTokenProvider({ tools: [wiki_tool] }),
+              provider: tokenProvider,
             },
           },
         },
       ]}
     />
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
   </StrictMode>,
 );
