@@ -767,7 +767,7 @@ export class UserTokenProvider extends BaseProvider {
           <div>
             <Heading level="h4">Create Annotation</Heading>
             <p className={styles.taskDescription}>
-              This task will create a IIIF annotation for the cuurent canvas based on the provided
+              This task will create a IIIF annotation for the current canvas based on the provided
               user input.
             </p>
           </div>
