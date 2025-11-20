@@ -8,3 +8,45 @@
   display: flex;
   gap: var(--clover-ai-sizes-2);
 }
+
+.tasksContainer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.tasksList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-space-2);
+  padding-inline-end: var(--clover-ai-space-4);
+}
+
+.taskDescription {
+  margin-top: 0;
+  margin-bottom: 0;
+  color: var(--clover-ai-colors-text-secondary);
+  font-style: italic;
+}
+
+.taskDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-space-4);
+  border-left: 1px solid var(--clover-ai-colors-primary);
+  padding-inline: var(--clover-ai-space-4);
+  overflow-wrap: anywhere;
+
+  * {
+    margin: 0;
+  }
+}
+
+.taskPlaceholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--clover-ai-colors-text-secondary);
+  font-style: italic;
+}

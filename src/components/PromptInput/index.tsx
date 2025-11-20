@@ -19,7 +19,7 @@ export const PromptInput: FC<PromptInputProps> = ({
       {error && <div className={styles.errorMessage}>{error}</div>}
       <div className={styles.promptInput} data-error={!!error}>
         <textarea
-          aria-label="Write your prompt to chat with a model"
+          aria-label={rest["aria-label"] ?? "Write your prompt to chat with a model"}
           placeholder={placeholder}
           {...rest}
         ></textarea>

@@ -1,15 +1,17 @@
 import { createAnthropic, type AnthropicProvider } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI, type google } from "@ai-sdk/google";
 import { createOpenAI, type OpenAIProvider } from "@ai-sdk/openai";
-import { Button, Heading, Input } from "@components";
+import { Button, Dialog, Heading, Input, MessagesContainer, PromptInput } from "@components";
+import { usePlugin } from "@context";
+import { BulletList } from "@icons";
 import { serializeConfigPresentation3, Traverse } from "@iiif/parser";
-import type { Canvas } from "@iiif/presentation-3";
+import type { Canvas, ContentResource } from "@iiif/presentation-3";
 import type { Tool } from "@langchain/core/tools";
-import type { AssistantMessage, Message } from "@types";
+import { ConversationState, type AssistantMessage, type Message } from "@types";
 import { getLabelByUserLanguage } from "@utils";
-import { ModelMessage, stepCountIs, streamText, tool } from "ai";
+import { generateText, ModelMessage, stepCountIs, streamText, tool } from "ai";
 import dedent from "dedent";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BaseProvider } from "../../plugin/base_provider";
 import { ModelSelection } from "./components/ModelSelection";
 import { ProviderSelection } from "./components/ProviderSelection";
@@ -22,9 +24,43 @@ type OpenAIModels = Parameters<OpenAIProvider>[0];
 type AnthropicModels = Parameters<AnthropicProvider>[0];
 
 type UserTokenProviderProps = {
+  /**
+   * Maximum number of tool use steps before stopping the response generation
+   */
   max_steps?: number;
+  /**
+   * Tools to enable for the AI model
+   */
   tools?: Tool[];
+  /**
+   * User token (API key) for the selected AI provider
+   */
   user_token?: string | null;
+  /**
+   * Define a callback function at the `<App />` level to receive IIIF content updates
+   *
+   * @param iiif_resource a IIIF URL or base64 encoded Content State Annotation
+   *
+   * @example
+   * ```tsx
+   * function App() {
+   *   const [iiifContent, setIiifContent] = useState<string>(<IIIF_URL>);
+   *
+   *   const tokenProvider = new UserTokenProvider({
+   *     viewer_iiif_content_callback: (iiif_resource) => {
+   *       setIiifContent(iiif_resource);
+   *     },
+   *   });
+   *
+   *   return (
+   *    <Viewer
+   *     iiifContent={iiifContent}
+   *    ...
+   *   />
+   * }
+   *```
+   */
+  viewer_iiif_content_callback?: (iiif_resource: string) => void;
 };
 
 export class UserTokenProvider extends BaseProvider {
@@ -34,13 +70,19 @@ export class UserTokenProvider extends BaseProvider {
   allowed_providers: Provider[] = ["google", "openai", "anthropic"];
   max_steps: number;
   tools: Tool[];
-
-  constructor({ user_token, tools = [], max_steps = 3 }: UserTokenProviderProps = {}) {
+  viewer_iiif_content_callback?: (iiif_resource: string) => void;
+  constructor({
+    user_token,
+    tools = [],
+    max_steps = 3,
+    viewer_iiif_content_callback,
+  }: UserTokenProviderProps = {}) {
     super();
+    this.#user_token = user_token || this.#user_token;
+    this.viewer_iiif_content_callback = viewer_iiif_content_callback;
     this.tools = tools;
     this.max_steps = max_steps;
     super.status = user_token ? "ready" : "initializing";
-    this.#user_token = user_token || this.#user_token;
   }
 
   /**
@@ -142,6 +184,23 @@ export class UserTokenProvider extends BaseProvider {
   }
 
   /**
+   * Generate a response from the model for a given set of messages used within tasks
+   *
+   * @param messages
+   * @returns the model's response
+   */
+  async #task_generate_response(messages: ModelMessage[]) {
+    const model = this.setup_model(this.selected_provider, this.user_token, this.selected_model);
+
+    const { text } = await generateText({
+      model,
+      messages,
+    });
+
+    return text;
+  }
+
+  /**
    * Transform the tools to the format expected by the AI SDK
    *
    * @returns tools transformed to the format expected by the AI SDK
@@ -168,7 +227,7 @@ export class UserTokenProvider extends BaseProvider {
 
   get models_by_provider(): Record<Provider, string[]> {
     return {
-      google: ["gemini-2.5-pro", "gemini-2.5-flash", "gemma-3-27b-it"] as GoogleModels[],
+      google: ["gemini-3-pro-preview", "gemini-2.5-pro", "gemini-2.5-flash"] as GoogleModels[],
       openai: ["gpt-4.1", "o3", "o4-mini"] as OpenAIModels[],
       anthropic: [
         "claude-4-opus-20250514",
@@ -288,6 +347,103 @@ export class UserTokenProvider extends BaseProvider {
     }
   }
 
+  PromptInputButtons() {
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const dialogRef = useRef<HTMLDialogElement>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [SelectedTaskComponent, setSelectedTaskComponent] = useState<React.ComponentType | null>(
+      null,
+    );
+
+    useEffect(() => {
+      if (isOpen && dialogRef.current) {
+        dialogRef.current.showModal();
+      }
+    }, [isOpen]);
+
+    useEffect(() => {
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+
+      const handleClose = () => {
+        closeDialog();
+      };
+
+      dialog.addEventListener("close", handleClose);
+      return () => {
+        dialog.removeEventListener("close", handleClose);
+      };
+    }, []);
+    /* eslint-enable react-hooks/rules-of-hooks */
+
+    function openDialog() {
+      setIsOpen(true);
+    }
+
+    function closeDialog() {
+      setIsOpen(false);
+      setSelectedTaskComponent(null);
+    }
+
+    const tasks: { component: React.ComponentType; name: string }[] = [
+      {
+        name: "Transcribe text",
+        component: this.TaskTranscribeCanvas.bind(this),
+      },
+      {
+        name: "Create annotation",
+        component: this.TaskCreateAnnotation.bind(this),
+      },
+    ];
+
+    return (
+      <>
+        <Dialog
+          aria-modal="true"
+          position="visual_center"
+          ref={dialogRef}
+          width="stretched"
+          onCloseCallback={closeDialog}
+        >
+          <Heading level="h3">Tasks</Heading>
+          <p>Predefined workflows for common tasks</p>
+          <div className={styles.tasksContainer}>
+            <div className={styles.tasksList}>
+              {tasks.map((task) => (
+                <Button
+                  className={styles.taskButton}
+                  key={task.name}
+                  size="small"
+                  variant="primary"
+                  onClick={() => setSelectedTaskComponent(() => task.component)}
+                >
+                  {task.name}
+                </Button>
+              ))}
+            </div>
+            <div className={styles.taskDetails}>
+              {!SelectedTaskComponent ? (
+                <div className={styles.taskPlaceholder}>Choose a task to see more details</div>
+              ) : (
+                <SelectedTaskComponent />
+              )}
+            </div>
+          </div>
+        </Dialog>
+        <Button
+          aria-label="Tasks"
+          shape="circle"
+          size="small"
+          title="Tasks"
+          type="button"
+          onClick={openDialog}
+        >
+          <BulletList />
+        </Button>
+      </>
+    );
+  }
+
   setup_model(provider: Provider, token: string, modelName: string) {
     switch (provider) {
       case "google": {
@@ -375,12 +531,442 @@ export class UserTokenProvider extends BaseProvider {
           onChange={(e) => setInputValue(e.target.value)}
         />
         <div className={styles.buttonGroup}>
-          <Button>Submit</Button>
-          <Button type="button" variant="ghost" onClick={() => setSelectedModel(null)}>
+          <Button type="submit">Submit</Button>
+          <Button variant="ghost" onClick={() => setSelectedModel(null)}>
             Back
           </Button>
         </div>
       </form>
     );
+  }
+
+  TaskCreateAnnotation() {
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const { state: pluginState } = usePlugin();
+    const [state, setState] = useState<"info" | "processing" | "error">("info");
+    const [conversationState, setConversationState] = useState<ConversationState>("idle");
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+    const [updateViewerButton, setUpdateViewerButton] = useState<"hidden" | "visible">("hidden");
+    const [encodedContentState, setEncodedContentState] = useState("");
+    const [errorText, setErrorText] = useState("");
+    const [inputValue, setInputValue] = useState("");
+    const [messages, setMessages] = useState<Message[]>([]);
+    /* eslint-enable react-hooks/rules-of-hooks */
+
+    function encodeContentState(plainContentState: string): string {
+      const uriEncoded = encodeURIComponent(plainContentState); // using built in function
+      const base64 = btoa(uriEncoded); // using built in function
+      const base64url = base64.replace(/\+/g, "-").replace(/\//g, "_");
+      const base64urlNoPadding = base64url.replace(/=/g, "");
+      return base64urlNoPadding;
+    }
+
+    const startTask = async () => {
+      try {
+        setState("processing");
+        setConversationState("assistant_responding");
+
+        const first_tool_message: Message = {
+          role: "assistant",
+          type: "tool-call",
+          content: {
+            type: "text",
+            tool_name: "CreateAnnotation",
+            content: "Getting current canvas content for transcription.",
+          },
+        };
+        setMessages([first_tool_message]);
+
+        // step 1: get the current canvas from the plugin state
+        const canvas: Canvas = pluginState.vault.serialize(
+          {
+            type: "Canvas",
+            id: pluginState.activeCanvas.id,
+          },
+          serializeConfigPresentation3,
+        );
+
+        // step 2: get the first painting from the canvas
+        const paintings: ContentResource[] = [];
+        const traverse = new Traverse({
+          contentResource: [
+            (resource) => {
+              if (resource.type === "Image") {
+                paintings.push(resource);
+              }
+            },
+          ],
+        });
+        traverse.traverseCanvasItems(canvas);
+
+        const painting = paintings[0].id;
+
+        if (!painting) {
+          throw new Error("No painting found on canvas");
+        }
+
+        const width = canvas.width || 0;
+        const height = canvas.height || 0;
+
+        const second_tool_message: Message = {
+          role: "assistant",
+          type: "tool-call",
+          content: {
+            type: "text",
+            tool_name: "CreateAnnotation",
+            content: "Sending canvas to model.",
+          },
+        };
+        setMessages((prevMessages) => [...prevMessages, second_tool_message]);
+
+        // step 3: set up the messages to send to the model
+        const systemMessage: ModelMessage = {
+          role: "system",
+          content: dedent`
+            You are an AI assistant that helps with creating IIIF annotations.
+          `,
+        };
+
+        const userMessageText = dedent`
+          ## Context
+          You will be generating a IIIF annotation for an image based on user input.
+
+          ## Details
+          Here are some important details to consider when generating the annotation:
+          
+          - The "text" field should contain HTML formatted text that will be displayed in the annotation.
+          - The "language" field should specify the language of the text using a standard language code (e.g., "en" for English).
+          - The "region" defines the area on the canvas for the annotation so be VERY precise with the coordinates and size.
+            - The image has a width of ${width} pixels and a height of ${height} pixels.
+            - Ensure that the x and y coordinates, as well as the width and height of the region, fit within the dimensions of the image.
+            - The region should be relevant to the user input provided.
+          
+          ## Task
+          Here is the user input for the annotation:
+          <user_instructions>${inputValue}</user_instructions>
+          Generate text and the region to be used in an annotation for the provided image.
+
+          ## Thinking
+          Think about the user instructions and the image details carefully before you respond.
+          
+          ## Output Format
+          Provide the response in JSON format as follows:
+          
+          {
+            "text": "<p>The text for the annotation.</p>",
+            "language": string (the language code you are providing the text in, e.g., "en"),
+            "region": {
+              "x": number (0 to ${width}),
+              "y": number (0 to ${height}),
+              "width": number (0 to ${width}),
+              "height": number (0 to ${height})
+            }
+          }
+
+          - Do NOT include any extra text outside the JSON object
+          - Only respond with the JSON object
+        `;
+
+        const userMessage: ModelMessage = {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              image: painting,
+            },
+            {
+              type: "text",
+              text: userMessageText,
+            },
+          ],
+        };
+
+        // step 4: call a custom function to generate the response
+        const result = (await this.#task_generate_response([systemMessage, userMessage]))
+          .replace("```json", "")
+          .replace("```", "")
+          .trim();
+
+        // step 5: update the messages to show user model call is done
+        const modelResponseMessage: Message = {
+          role: "assistant",
+          type: "tool-call",
+          content: {
+            type: "text",
+            tool_name: "CreateAnnotation",
+            content: "Parsing model response",
+          },
+        };
+        setMessages((prevMessages) => [...prevMessages, modelResponseMessage]);
+
+        // step 6: parse the response
+        const parsed = JSON.parse(result);
+
+        if (
+          !parsed.text ||
+          !parsed.region ||
+          typeof parsed.region.x !== "number" ||
+          typeof parsed.region.y !== "number" ||
+          typeof parsed.region.width !== "number" ||
+          typeof parsed.region.height !== "number"
+        ) {
+          throw new Error("Invalid response format from model");
+        }
+
+        // step 7: create the annotation for the canvas and encode it
+        const annotation = {
+          "@context": "http://iiif.io/api/presentation/3/context.json",
+          id: "https://example.org/import/1",
+          type: "Annotation",
+          motivation: ["contentState"],
+          target: {
+            id: `${canvas.id}#xywh=${parsed.region.x},${parsed.region.y},${parsed.region.width},${parsed.region.height}`,
+            type: "Canvas",
+            partOf: [
+              {
+                id: pluginState.manifest.id,
+                type: "Manifest",
+              },
+            ],
+          },
+          body: {
+            type: "TextualBody",
+            value: parsed.text,
+            format: "text/html",
+            language: [parsed.language || "en"],
+          },
+        };
+
+        const contentState = encodeContentState(JSON.stringify(annotation));
+
+        setEncodedContentState(contentState);
+
+        const contentStateResponse: Message = {
+          role: "assistant",
+          type: "response",
+          content: {
+            type: "text",
+            content: this.viewer_iiif_content_callback
+              ? "Annotation created successfully. Click the button below to update the viewer."
+              : `Annotation created successfully. Here is the encoded Content State annotation:\n${contentState}`,
+          },
+        };
+        setMessages((prevMessages) => [...prevMessages, contentStateResponse]);
+        setConversationState("idle");
+        setUpdateViewerButton("visible");
+      } catch (error) {
+        console.error(error); // eslint-disable-line no-console
+        setErrorText(error instanceof Error ? error.message : "An unknown error occurred.");
+        setState("error");
+      }
+    };
+
+    if (state === "info") {
+      return (
+        <>
+          <div>
+            <Heading level="h4">Create Annotation</Heading>
+            <p className={styles.taskDescription}>
+              This task will create a IIIF annotation for the current canvas based on the provided
+              user input.
+            </p>
+          </div>
+          <PromptInput
+            aria-label="Provide additional context for the task"
+            placeholder="Highlight an interesting background object"
+            required={true}
+            onChange={({ currentTarget }) => {
+              setInputValue(currentTarget.value.trim());
+              if (currentTarget.value.trim()) {
+                setIsButtonDisabled(false);
+              } else {
+                setIsButtonDisabled(true);
+              }
+            }}
+          />
+          <Button disabled={isButtonDisabled} onClick={startTask}>
+            {isButtonDisabled ? "Provide context to enable" : "Create Annotation"}
+          </Button>
+        </>
+      );
+    }
+
+    if (state === "error") {
+      return (
+        <>
+          <div>
+            <Heading level="h4">Error</Heading>
+            <p>There was an error processing the transcription task:</p>
+          </div>
+          <div>{errorText}</div>
+          <Button onClick={startTask}>Retry</Button>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <MessagesContainer conversationState="idle" messages={messages} />
+        {conversationState === "assistant_responding" ? (
+          <div className={styles.loadingIndicator}>Processing...</div>
+        ) : null}
+        {updateViewerButton === "visible" && this.viewer_iiif_content_callback ? (
+          <Button
+            onClick={() => {
+              this.viewer_iiif_content_callback!(encodedContentState);
+            }}
+          >
+            Update Viewer with Annotation
+          </Button>
+        ) : null}
+      </>
+    );
+  }
+
+  TaskTranscribeCanvas() {
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const { state: pluginState } = usePlugin();
+    const [state, setState] = useState<"info" | "processing" | "error">("info");
+    const [errorText, setErrorText] = useState("");
+    const [inputValue, setInputValue] = useState("");
+    const [messages, setMessages] = useState<Message[]>([]);
+    /* eslint-enable react-hooks/rules-of-hooks */
+
+    const startTask = async () => {
+      try {
+        setState("processing");
+
+        const first_tool_message: Message = {
+          role: "assistant",
+          type: "tool-call",
+          content: {
+            type: "text",
+            tool_name: "TranscribeCanvas",
+            content: "Getting current canvas content for transcription.",
+          },
+        };
+        setMessages([first_tool_message]);
+
+        // step 1: get the current canvas from the plugin state
+        const canvas: Canvas = pluginState.vault.serialize(
+          {
+            type: "Canvas",
+            id: pluginState.activeCanvas.id,
+          },
+          serializeConfigPresentation3,
+        );
+
+        // step 2: get the first painting from the canvas
+        const paintings: ContentResource[] = [];
+        const traverse = new Traverse({
+          contentResource: [
+            (resource) => {
+              if (resource.type === "Image") {
+                paintings.push(resource);
+              }
+            },
+          ],
+        });
+        traverse.traverseCanvasItems(canvas);
+
+        const painting = paintings[0].id;
+
+        if (!painting) {
+          throw new Error("No painting found on canvas");
+        }
+
+        const second_tool_message: Message = {
+          role: "assistant",
+          type: "tool-call",
+          content: {
+            type: "text",
+            tool_name: "TranscribeCanvas",
+            content: "Sending painting for transcription.",
+          },
+        };
+        setMessages((prevMessages) => [...prevMessages, second_tool_message]);
+
+        // step 3: set up the messages to send to the model
+        const systemMessage: ModelMessage = {
+          role: "system",
+          content: dedent`
+            You are an AI assistant that transcribes text from images, providing detailed and accurate transcriptions.
+          `,
+        };
+
+        const userMessageText = dedent`
+          Please transcribe any text you can find in the provided image. 
+          Provide the transcription in a clear and structured format.
+          ${inputValue ? `Here is some additional context to consider: ${inputValue}` : ""}
+        `;
+        const userMessage: ModelMessage = {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              image: painting,
+            },
+            {
+              type: "text",
+              text: userMessageText,
+            },
+          ],
+        };
+
+        // step 4: call a custom function to generate the response
+        const result = await this.#task_generate_response([systemMessage, userMessage]);
+
+        // step 5: show the response in the messages container
+        const assistantMessage: Message = {
+          role: "assistant",
+          type: "response",
+          content: {
+            type: "text",
+            content: result,
+          },
+        };
+        setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+      } catch (error) {
+        console.error(error); // eslint-disable-line no-console
+        setErrorText(error instanceof Error ? error.message : "An unknown error occurred.");
+        setState("error");
+      }
+    };
+
+    if (state === "info") {
+      return (
+        <>
+          <div>
+            <Heading level="h4">Transcribe Text from Canvas</Heading>
+            <p className={styles.taskDescription}>
+              This task will analyze the current canvas and attempt to transcribe any text it finds
+              within the image.
+            </p>
+          </div>
+          <PromptInput
+            aria-label="Provide additional context for the task"
+            placeholder="Provide additional context for the task"
+            onChange={({ currentTarget }) => {
+              setInputValue(currentTarget.value.trim());
+            }}
+          />
+          <Button onClick={startTask}>Start Transcription</Button>
+        </>
+      );
+    }
+
+    if (state === "error") {
+      return (
+        <>
+          <div>
+            <Heading level="h4">Error</Heading>
+            <p>There was an error processing the transcription task:</p>
+          </div>
+          <div>{errorText}</div>
+        </>
+      );
+    }
+
+    return <MessagesContainer conversationState="idle" messages={messages} />;
   }
 }

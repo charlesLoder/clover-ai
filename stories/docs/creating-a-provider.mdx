@@ -74,7 +74,7 @@ export class MyCustomProvider extends BaseProvider {
       <div>
         <Heading level={"h3"}>Welcome to My Custom Provider</Heading>
         <p>Please acknowledge that you won't use this tool for evil.</p>
-        <Button onClick={handleClick} type="button" variant="primary">
+        <Button onClick={handleClick} variant="primary">
           I won't
         </Button>
       </div>
@@ -131,7 +131,7 @@ export class MyCustomProvider extends BaseProvider {
     );
   }
 
-  async send_messages(messages: Message[], conversationHistory: Message[]): Promise<void> {
+  async generate_response(messages: Message[], conversationHistory: Message[]): Promise<void> {
     this.set_conversation_state("assistant_responding");
 
     const mockWebSocket = new WebSocket("ws://mock-websocket-server");
@@ -163,7 +163,7 @@ export class MyCustomProvider extends BaseProvider {
 }
 ```
 
-In this step, we implement the `send_messages` method, which is responsible for sending messages to the mock LLM provider.
+In this step, we implement the `generate_response` method, which is responsible for sending messages to the mock LLM provider.
 
 First, we set the conversation state to `"assistant_responding"` to indicate that the assistant is processing the request.
 

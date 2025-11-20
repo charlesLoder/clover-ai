@@ -354,15 +354,8 @@ export class MediaPipeProvider extends BaseProvider {
             </a>
             .
           </p>
-          <Button type="button" onClick={handleConsent}>
-            Accept and Continue
-          </Button>
-          <Button
-            style={{ marginLeft: "0.75rem" }}
-            type="button"
-            variant="danger"
-            onClick={handleForceReload}
-          >
+          <Button onClick={handleConsent}>Accept and Continue</Button>
+          <Button style={{ marginLeft: "0.75rem" }} variant="danger" onClick={handleForceReload}>
             Force Reload (Clear Cache)
           </Button>
         </div>
@@ -378,9 +371,7 @@ export class MediaPipeProvider extends BaseProvider {
           <p className={styles.errorNote}>
             Check the browser console for detailed error information.
           </p>
-          <Button type="button" onClick={handleRetry}>
-            Back
-          </Button>
+          <Button onClick={handleRetry}>Back</Button>
         </div>
       );
     }
