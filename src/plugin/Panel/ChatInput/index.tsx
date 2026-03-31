@@ -137,6 +137,7 @@ export const ChatInput: FC = () => {
             state={formState !== "success" ? formState : undefined}
             title="Submit question"
             type="submit"
+            disabled={!textareaValue.trim()}
           >
             <ArrowUp />
           </Button>
