@@ -16,7 +16,6 @@ export const SelectedAnnotation: React.FC<SelectedAnnotationProps> = ({ annotati
     dispatch({ type: "setSelectedAnnotations", selectedAnnotations: newAnnotations });
   }
 
-  console.log(annotation.content);
   const truncatedContent =
     annotation.content.length > 15
       ? annotation.content.substring(0, 15) + "..."

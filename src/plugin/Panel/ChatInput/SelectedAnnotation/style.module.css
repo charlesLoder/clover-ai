@@ -7,6 +7,10 @@
     grid-area: 1/1;
   }
 
+  .annotationContent svg {
+    color: var(--clover-ai-colors-accentAlt);
+  }
+
   > button {
     width: fit-content;
     height: fit-content;

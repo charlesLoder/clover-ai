@@ -1,7 +1,7 @@
 export const TextFile: React.FC<React.SVGProps<SVGSVGElement>> = () => {
   return (
     <svg
-      fill="none"
+      fill="currentColor"
       height="100%"
       viewBox="0 0 15 15"
       width="100%"
