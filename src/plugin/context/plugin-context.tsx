@@ -1,7 +1,7 @@
 import type { Vault } from "@iiif/helpers";
 import type { CanvasNormalized, ManifestNormalized } from "@iiif/presentation-3-normalized";
 import type { Plugin as CloverIIIF } from "@samvera/clover-iiif";
-import type { Annotation, ConversationState, Media, Message } from "@types";
+import type { ConversationState, Message, SelectedContent } from "@types";
 import { loadMessagesFromStorage, setMessagesToStorage } from "@utils";
 import type { Viewer } from "openseadragon";
 import type { Dispatch } from "react";
@@ -16,8 +16,7 @@ export interface PluginContextStore {
   messages: Message[];
   openSeaDragonViewer: Viewer | undefined;
   provider: BaseProvider | undefined;
-  selectedMedia: Media[];
-  selectedAnnotations: Annotation[];
+  selectedContent: SelectedContent[];
   systemPrompt: string;
   vault: Vault;
 }
@@ -57,14 +56,9 @@ interface SetOSDViewerAction {
   type: "setOpenSeaDragonViewer";
 }
 
-interface SetSelectedMediaAction {
-  selectedMedia: Media[];
-  type: "setSelectedMedia";
-}
-
-interface SetSelectedAnnotationsAction {
-  selectedAnnotations: Annotation[];
-  type: "setSelectedAnnotations";
+interface SetSelectedContentAction {
+  selectedContent: SelectedContent[];
+  type: "setSelectedContent";
 }
 
 interface SetVaultAction {
@@ -95,8 +89,7 @@ export type PluginContextActions =
   | SetManifestAction
   | SetMediaDialogStateAction
   | SetOSDViewerAction
-  | SetSelectedMediaAction
-  | SetSelectedAnnotationsAction
+  | SetSelectedContentAction
   | SetSystemPromptAction
   | SetVaultAction
   | UpdateProviderAction
@@ -111,8 +104,7 @@ const defaultPluginContextStore: InitPluginContextStore = {
   messages: [],
   openSeaDragonViewer: undefined,
   provider: undefined,
-  selectedMedia: [],
-  selectedAnnotations: [],
+  selectedContent: [],
   systemPrompt: "",
 };
 
@@ -167,17 +159,14 @@ export function pluginReducer(
       return { ...state, conversationState: action.conversationState };
     case "setMediaDialogState":
       return { ...state, mediaDialogState: action.state };
-    case "setSelectedMedia":
-      return { ...state, selectedMedia: action.selectedMedia };
-    case "setSelectedAnnotations":
-      return { ...state, selectedAnnotations: action.selectedAnnotations };
+    case "setSelectedContent":
+      return { ...state, selectedContent: action.selectedContent };
     case "setOpenSeaDragonViewer":
       return { ...state, openSeaDragonViewer: action.openSeaDragonViewer };
     case "setVault":
       return { ...state, vault: action.vault };
     default:
-      //@ts-expect-error - this is a catch-all for unknown action types
-      throw new Error(`Unknown action type: ${action.type}`);
+      return state;
   }
 }
 

@@ -1,6 +1,6 @@
 import type { Plugin as CloverIIIF } from "@samvera/clover-iiif";
 import { fireEvent, render, screen } from "@testing-library/react";
-import type { Message } from "@types";
+import type { Message, SelectedContent } from "@types";
 import { loadMessagesFromStorage } from "@utils";
 import { describe, expect, it, type Mock, vi } from "vitest";
 import {
@@ -29,8 +29,7 @@ const mockInitialState: PluginContextStore = {
   messages: [],
   openSeaDragonViewer: undefined,
   provider: undefined,
-  selectedMedia: [],
-  selectedAnnotations: [],
+  selectedContent: [],
   systemPrompt: "",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vault: {} as any,
@@ -161,30 +160,15 @@ describe("pluginReducer", () => {
     expect(newState.mediaDialogState).toBe(state);
   });
 
-  it("should handle setSelectedMedia", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const selectedMedia = [{ type: "image", url: "http://example.com/img.png" }] as any;
-    const action: PluginContextActions = { type: "setSelectedMedia", selectedMedia };
-    const newState = pluginReducer(mockInitialState, action);
-
-    expect(newState.selectedMedia).toEqual(selectedMedia);
-  });
-
-  it("should handle setSelectedAnnotations", () => {
-    const selectedAnnotations = [
-      {
-        id: "annotation-1",
-        content: "<p>Test annotation</p>",
-        region: { x: 0, y: 0, width: 100, height: 100 },
-      },
+  it("should handle setSelectedContent", () => {
+    const selectedContent: SelectedContent[] = [
+      { type: "media", content: { type: "image" as const, id: "media-1", src: "http://example.com/img.png" } },
+      { type: "annotation", content: { id: "annotation-1", content: "<p>Test annotation</p>" } },
     ];
-    const action: PluginContextActions = {
-      type: "setSelectedAnnotations",
-      selectedAnnotations,
-    };
+    const action: PluginContextActions = { type: "setSelectedContent", selectedContent };
     const newState = pluginReducer(mockInitialState, action);
 
-    expect(newState.selectedAnnotations).toEqual(selectedAnnotations);
+    expect(newState.selectedContent).toEqual(selectedContent);
   });
 
   it("should handle setOpenSeaDragonViewer", () => {
@@ -205,12 +189,12 @@ describe("pluginReducer", () => {
     expect(newState.vault).toEqual(vault);
   });
 
-  it("should throw an error for an unknown action type", () => {
+  it("should handle unknown action type by returning state unchanged", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const action: PluginContextActions = { type: "UNKNOWN_ACTION" } as any;
-    expect(() => pluginReducer(mockInitialState, action)).toThrow(
-      "Unknown action type: UNKNOWN_ACTION",
-    );
+    const newState = pluginReducer(mockInitialState, action);
+
+    expect(newState).toEqual(mockInitialState);
   });
 });
 

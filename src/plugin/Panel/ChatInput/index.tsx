@@ -1,7 +1,7 @@
 import { Button, PromptInput } from "@components";
 import { usePlugin } from "@context";
 import { Add, ArrowUp, Clear } from "@icons";
-import { AnnotationContent, MediaContent, UserMessage } from "@types";
+import { UserMessage } from "@types";
 import type { FC } from "react";
 import { useState } from "react";
 import { SelectedAnnotation } from "./SelectedAnnotation";
@@ -44,24 +44,9 @@ export const ChatInput: FC = () => {
       },
     };
 
-    if (state.selectedMedia.length) {
-      const mediaContent: MediaContent[] = state.selectedMedia.map((media) => ({
-        type: "media",
-        content: media,
-      }));
-      userMessage.content.push(...mediaContent);
-      dispatch({ type: "setSelectedMedia", selectedMedia: [] });
-    }
-
-    if (state.selectedAnnotations.length) {
-      const annotationContent: AnnotationContent[] = state.selectedAnnotations.map(
-        (annotation) => ({
-          type: "annotation",
-          content: annotation,
-        }),
-      );
-      userMessage.content.push(...annotationContent);
-      dispatch({ type: "setSelectedAnnotations", selectedAnnotations: [] });
+    if (state.selectedContent.length) {
+      userMessage.content.push(...state.selectedContent);
+      dispatch({ type: "setSelectedContent", selectedContent: [] });
     }
 
     // Add user message immediately
@@ -114,18 +99,16 @@ export const ChatInput: FC = () => {
         }}
       >
         <div className="selected-content">
-          {state.selectedMedia.length ? (
-            state.selectedMedia.map((media, index) => <SelectedMedia key={index} media={media} />)
-          ) : (
-            <></>
-          )}
-          {state.selectedAnnotations.length ? (
-            state.selectedAnnotations.map((annotation, index) => (
-              <SelectedAnnotation annotation={annotation} key={index} />
-            ))
-          ) : (
-            <></>
-          )}
+          {state.selectedContent.map((item, index) => {
+            switch (item.type) {
+              case "media":
+                return <SelectedMedia key={index} media={item.content} />;
+              case "annotation":
+                return <SelectedAnnotation annotation={item.content} key={index} />;
+              default:
+                return <></>;
+            }
+          })}
         </div>
         <div className="controls">
           {PromptInputButtons && <PromptInputButtons />}

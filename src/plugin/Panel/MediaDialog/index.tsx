@@ -8,7 +8,7 @@ import type {
   EmbeddedResource,
   SpecificResource,
 } from "@iiif/presentation-3";
-import type { Annotation, Media } from "@types";
+import { Annotation, Media, SelectedContent } from "@types";
 import { getLabelByUserLanguage, updateIIIFImageRequestURI } from "@utils";
 import { FC, useEffect, useRef, useState } from "react";
 import style from "./style.module.css";
@@ -61,26 +61,26 @@ function getTextualBodyValueFromAnnotation(annotation: IIIFAnnotation): string |
   return getTextualBodyValue(annotation.body);
 }
 
-function isMediaInSelectedMedia(media: Media, selectedMedia: Media[]): boolean {
-  return selectedMedia.some((m) => m.id === media.id);
+function isMediaInSelectedContent(media: Media, selectedContent: SelectedContent[]): boolean {
+  return selectedContent.some((item) => item.type === "media" && item.content.id === media.id);
 }
 
-function isAnnotationInSelectedAnnotations(
+function isAnnotationInSelectedContent(
   annotation: Annotation,
-  selectedAnnotations: Annotation[],
+  selectedContent: SelectedContent[],
 ): boolean {
-  return selectedAnnotations.some((a) => a.id === annotation.id);
+  return selectedContent.some((item) => item.type === "annotation" && item.content.id === annotation.id);
 }
 
 function handleSelectedMedia(
   selected: boolean,
   media: Media,
-  selectedMedia: Media[],
-  onUpdate: (media: Media[]) => void,
+  selectedContent: SelectedContent[],
+  onUpdate: (content: SelectedContent[]) => void,
 ) {
-  const resources: Media[] = selected
-    ? [...selectedMedia, media]
-    : selectedMedia.filter((m) => m.id !== media.id);
+  const resources: SelectedContent[] = selected
+    ? [...selectedContent, { type: "media", content: media }]
+    : selectedContent.filter((item) => !(item.type === "media" && item.content.id === media.id));
 
   onUpdate(resources);
 }
@@ -120,8 +120,8 @@ const CurrentView = () => {
   const { state, dispatch } = usePlugin();
 
   function handleAddMedia(selected: boolean, media: Media) {
-    handleSelectedMedia(selected, media, state.selectedMedia, (resources) =>
-      dispatch({ type: "setSelectedMedia", selectedMedia: resources }),
+    handleSelectedMedia(selected, media, state.selectedContent, (resources) =>
+      dispatch({ type: "setSelectedContent", selectedContent: resources }),
     );
   }
 
@@ -172,7 +172,7 @@ const CurrentView = () => {
           imgObjectFit="contain"
           src={fragmentMedia.src}
           initialState={
-            isMediaInSelectedMedia(fragmentMedia, state.selectedMedia) ? "selected" : "unselected"
+            isMediaInSelectedContent(fragmentMedia, state.selectedContent) ? "selected" : "unselected"
           }
           onSelectionChange={(selected) => handleAddMedia(selected, fragmentMedia)}
         />
@@ -189,8 +189,8 @@ const Paintings: FC<{ canvas: Canvas }> = ({ canvas }) => {
     media.src = updateIIIFImageRequestURI(media.src, {
       size: `max`,
     });
-    handleSelectedMedia(selected, media, state.selectedMedia, (resources) =>
-      dispatch({ type: "setSelectedMedia", selectedMedia: resources }),
+    handleSelectedMedia(selected, media, state.selectedContent, (resources) =>
+      dispatch({ type: "setSelectedContent", selectedContent: resources }),
     );
   }
 
@@ -237,7 +237,7 @@ const Paintings: FC<{ canvas: Canvas }> = ({ canvas }) => {
         <ImageSelect
           figcaption={m.caption}
           imgObjectFit="cover"
-          initialState={isMediaInSelectedMedia(m, state.selectedMedia) ? "selected" : "unselected"}
+          initialState={isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"}
           key={`painting-${m.id}`}
           src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
@@ -253,8 +253,8 @@ const Placeholder: FC<{ placeholder: NonNullable<Canvas["placeholderCanvas"]> }>
   const { state, dispatch } = usePlugin();
 
   function handleAddMedia(selected: boolean, media: Media) {
-    handleSelectedMedia(selected, media, state.selectedMedia, (resources) =>
-      dispatch({ type: "setSelectedMedia", selectedMedia: resources }),
+    handleSelectedMedia(selected, media, state.selectedContent, (resources) =>
+      dispatch({ type: "setSelectedContent", selectedContent: resources }),
     );
   }
 
@@ -295,7 +295,7 @@ const Placeholder: FC<{ placeholder: NonNullable<Canvas["placeholderCanvas"]> }>
         <ImageSelect
           figcaption={m.caption}
           imgObjectFit="cover"
-          initialState={isMediaInSelectedMedia(m, state.selectedMedia) ? "selected" : "unselected"}
+          initialState={isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"}
           key={`placeholder-${m.id}`}
           src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
@@ -309,8 +309,8 @@ const Thumbnails: FC<{ thumbnails: ContentResource[] }> = ({ thumbnails }) => {
   const { state, dispatch } = usePlugin();
 
   function handleAddMedia(selected: boolean, media: Media) {
-    handleSelectedMedia(selected, media, state.selectedMedia, (resources) =>
-      dispatch({ type: "setSelectedMedia", selectedMedia: resources }),
+    handleSelectedMedia(selected, media, state.selectedContent, (resources) =>
+      dispatch({ type: "setSelectedContent", selectedContent: resources }),
     );
   }
 
@@ -335,7 +335,7 @@ const Thumbnails: FC<{ thumbnails: ContentResource[] }> = ({ thumbnails }) => {
           key={`thumbnail-${index}`}
           src={thumbnail.src}
           initialState={
-            isMediaInSelectedMedia(thumbnail, state.selectedMedia) ? "selected" : "unselected"
+            isMediaInSelectedContent(thumbnail, state.selectedContent) ? "selected" : "unselected"
           }
           onSelectionChange={(selected) => handleAddMedia(selected, thumbnail)}
         />
@@ -381,11 +381,11 @@ const Annotations: FC<{ canvas: Canvas }> = ({ canvas }) => {
   traverse.traverseCanvas(canvas);
 
   function handleAddAnnotation(selected: boolean, annotation: Annotation) {
-    const resources: Annotation[] = selected
-      ? [...state.selectedAnnotations, annotation]
-      : state.selectedAnnotations.filter((a) => a.id !== annotation.id);
+    const resources: SelectedContent[] = selected
+      ? [...state.selectedContent, { type: "annotation", content: annotation }]
+      : state.selectedContent.filter((item) => !(item.type === "annotation" && item.content.id === annotation.id));
 
-    dispatch({ type: "setSelectedAnnotations", selectedAnnotations: resources });
+    dispatch({ type: "setSelectedContent", selectedContent: resources });
   }
 
   if (!annotations.length) {
@@ -395,7 +395,7 @@ const Annotations: FC<{ canvas: Canvas }> = ({ canvas }) => {
   return (
     <div className={style.annotationsList}>
       {annotations.map((annotation) => {
-        const isSelected = isAnnotationInSelectedAnnotations(annotation, state.selectedAnnotations);
+        const isSelected = isAnnotationInSelectedContent(annotation, state.selectedContent);
         return (
           <div className={style.annotationItem} key={annotation.id}>
             <label className={style.annotationLabel}>

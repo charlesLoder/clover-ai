@@ -12,8 +12,10 @@ export const SelectedAnnotation: React.FC<SelectedAnnotationProps> = ({ annotati
   const { dispatch, state } = usePlugin();
 
   function handleClick(id: Annotation["id"]) {
-    const newAnnotations = state.selectedAnnotations.filter((a) => a.id !== id);
-    dispatch({ type: "setSelectedAnnotations", selectedAnnotations: newAnnotations });
+    const newContent = state.selectedContent.filter(
+      (item) => !(item.type === "annotation" && item.content.id === id),
+    );
+    dispatch({ type: "setSelectedContent", selectedContent: newContent });
   }
 
   const truncatedContent =

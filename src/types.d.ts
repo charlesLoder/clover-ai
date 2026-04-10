@@ -37,6 +37,8 @@ export interface AnnotationContent {
   type: "annotation";
 }
 
+export type SelectedContent = AnnotationContent | MediaContent;
+
 export interface ToolContent extends TextContent {
   tool_name: string;
 }
