@@ -1,7 +1,7 @@
 import type { Vault } from "@iiif/helpers";
 import type { CanvasNormalized, ManifestNormalized } from "@iiif/presentation-3-normalized";
 import type { Plugin as CloverIIIF } from "@samvera/clover-iiif";
-import type { ConversationState, Media, Message } from "@types";
+import type { Annotation, ConversationState, Media, Message } from "@types";
 import { loadMessagesFromStorage, setMessagesToStorage } from "@utils";
 import type { Viewer } from "openseadragon";
 import type { Dispatch } from "react";
@@ -17,6 +17,7 @@ export interface PluginContextStore {
   openSeaDragonViewer: Viewer | undefined;
   provider: BaseProvider | undefined;
   selectedMedia: Media[];
+  selectedAnnotations: Annotation[];
   systemPrompt: string;
   vault: Vault;
 }
@@ -61,6 +62,11 @@ interface SetSelectedMediaAction {
   type: "setSelectedMedia";
 }
 
+interface SetSelectedAnnotationsAction {
+  selectedAnnotations: Annotation[];
+  type: "setSelectedAnnotations";
+}
+
 interface SetVaultAction {
   vault: Vault;
   type: "setVault";
@@ -90,6 +96,7 @@ export type PluginContextActions =
   | SetMediaDialogStateAction
   | SetOSDViewerAction
   | SetSelectedMediaAction
+  | SetSelectedAnnotationsAction
   | SetSystemPromptAction
   | SetVaultAction
   | UpdateProviderAction
@@ -105,6 +112,7 @@ const defaultPluginContextStore: InitPluginContextStore = {
   openSeaDragonViewer: undefined,
   provider: undefined,
   selectedMedia: [],
+  selectedAnnotations: [],
   systemPrompt: "",
 };
 
@@ -161,6 +169,8 @@ export function pluginReducer(
       return { ...state, mediaDialogState: action.state };
     case "setSelectedMedia":
       return { ...state, selectedMedia: action.selectedMedia };
+    case "setSelectedAnnotations":
+      return { ...state, selectedAnnotations: action.selectedAnnotations };
     case "setOpenSeaDragonViewer":
       return { ...state, openSeaDragonViewer: action.openSeaDragonViewer };
     case "setVault":

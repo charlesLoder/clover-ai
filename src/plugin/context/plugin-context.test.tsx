@@ -30,6 +30,7 @@ const mockInitialState: PluginContextStore = {
   openSeaDragonViewer: undefined,
   provider: undefined,
   selectedMedia: [],
+  selectedAnnotations: [],
   systemPrompt: "",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vault: {} as any,
@@ -167,6 +168,23 @@ describe("pluginReducer", () => {
     const newState = pluginReducer(mockInitialState, action);
 
     expect(newState.selectedMedia).toEqual(selectedMedia);
+  });
+
+  it("should handle setSelectedAnnotations", () => {
+    const selectedAnnotations = [
+      {
+        id: "annotation-1",
+        content: "<p>Test annotation</p>",
+        region: { x: 0, y: 0, width: 100, height: 100 },
+      },
+    ];
+    const action: PluginContextActions = {
+      type: "setSelectedAnnotations",
+      selectedAnnotations,
+    };
+    const newState = pluginReducer(mockInitialState, action);
+
+    expect(newState.selectedAnnotations).toEqual(selectedAnnotations);
   });
 
   it("should handle setOpenSeaDragonViewer", () => {

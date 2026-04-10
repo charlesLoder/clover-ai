@@ -10,6 +10,18 @@ export type Media = {
   caption?: string;
 };
 
+export type Annotation = {
+  content: string;
+  id: string;
+  region?: {
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+  };
+  target?: string;
+};
+
 export interface TextContent {
   content: string;
   type: "text";
@@ -18,6 +30,11 @@ export interface TextContent {
 export interface MediaContent {
   content: Media;
   type: "media";
+}
+
+export interface AnnotationContent {
+  content: Annotation;
+  type: "annotation";
 }
 
 export interface ToolContent extends TextContent {
@@ -39,7 +56,7 @@ export type AssistantMessage = {
 } & (Response | ToolCall);
 
 export interface UserMessage {
-  content: (TextContent | MediaContent)[];
+  content: (TextContent | MediaContent | AnnotationContent)[];
   /** Context that can be added to user messages when generating a response */
   context: {
     canvas: CanvasNormalized;

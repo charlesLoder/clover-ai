@@ -57,6 +57,7 @@ describe("ChatInput", () => {
       dispatch,
       state: {
         selectedMedia: [],
+        selectedAnnotations: [],
         messages: [],
         provider,
       } as any, // eslint-disable-line @typescript-eslint/no-explicit-any,
