@@ -79,10 +79,21 @@ export class MediaPipeProvider extends BaseProvider {
         sequence.push("<start_of_turn>user\n");
 
         for (const content of message.content) {
-          if (content.type === "text") {
-            sequence.push(content.content);
-          } else if (content.type === "media" && content.content.src) {
-            sequence.push({ imageSource: content.content.src });
+          switch (content.type) {
+            case "text":
+              sequence.push(content.content);
+              break;
+            case "annotation":
+              sequence.push(`
+                ## Annotation Content
+                The user has shared the following annotation content:
+                ${content.content.content}`);
+              break;
+            case "media":
+              if (content.content.src) {
+                sequence.push({ imageSource: content.content.src });
+              }
+              break;
           }
         }
 

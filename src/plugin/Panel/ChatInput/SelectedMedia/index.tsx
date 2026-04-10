@@ -11,8 +11,10 @@ export const SelectedMedia: React.FC<SelectedMediaProps> = ({ media }) => {
   const { dispatch, state } = usePlugin();
 
   function handleClick(id: Media["id"]) {
-    const newMedia = state.selectedMedia.filter((m) => m.id !== id);
-    dispatch({ type: "setSelectedMedia", selectedMedia: newMedia });
+    const newContent = state.selectedContent.filter(
+      (item) => !(item.type === "media" && item.content.id === id),
+    );
+    dispatch({ type: "setSelectedContent", selectedContent: newContent });
   }
   return (
     <div className={style.selectedMedia}>

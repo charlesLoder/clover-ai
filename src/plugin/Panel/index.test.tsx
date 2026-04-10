@@ -168,13 +168,13 @@ describe("Plugin > Panel", () => {
       const { container } = render(<Panel {...mockClover} provider={mockProvider} />);
 
       // 1. Open the media dialog
-      const addMediaButton = screen.getByRole("button", { name: "Add media" });
+      const addMediaButton = screen.getByRole("button", { name: "Add content" });
       await user.click(addMediaButton);
 
       // 2. Dialog is open
       const dialog = screen.getByRole("dialog");
       expect(dialog).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Add media" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Add content" })).toBeInTheDocument();
 
       // 3. Select an image
       const imageSelect = await screen.findByRole("button", {

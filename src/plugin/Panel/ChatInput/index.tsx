@@ -1,9 +1,10 @@
 import { Button, PromptInput } from "@components";
 import { usePlugin } from "@context";
 import { Add, ArrowUp, Clear } from "@icons";
-import { MediaContent, UserMessage } from "@types";
+import { UserMessage } from "@types";
 import type { FC } from "react";
 import { useState } from "react";
+import { SelectedAnnotation } from "./SelectedAnnotation";
 import { SelectedMedia } from "./SelectedMedia";
 
 export const ChatInput: FC = () => {
@@ -43,13 +44,9 @@ export const ChatInput: FC = () => {
       },
     };
 
-    if (state.selectedMedia.length) {
-      const mediaContent: MediaContent[] = state.selectedMedia.map((media) => ({
-        type: "media",
-        content: media,
-      }));
-      userMessage.content.push(...mediaContent);
-      dispatch({ type: "setSelectedMedia", selectedMedia: [] }); // Clear selected media after sending
+    if (state.selectedContent.length) {
+      userMessage.content.push(...state.selectedContent);
+      dispatch({ type: "setSelectedContent", selectedContent: [] });
     }
 
     // Add user message immediately
@@ -101,12 +98,17 @@ export const ChatInput: FC = () => {
           }
         }}
       >
-        <div className="selected-media">
-          {state.selectedMedia.length ? (
-            state.selectedMedia.map((media, index) => <SelectedMedia key={index} media={media} />)
-          ) : (
-            <></>
-          )}
+        <div className="selected-content">
+          {state.selectedContent.map((item, index) => {
+            switch (item.type) {
+              case "media":
+                return <SelectedMedia key={index} media={item.content} />;
+              case "annotation":
+                return <SelectedAnnotation annotation={item.content} key={index} />;
+              default:
+                return <></>;
+            }
+          })}
         </div>
         <div className="controls">
           {PromptInputButtons && <PromptInputButtons />}
@@ -121,17 +123,18 @@ export const ChatInput: FC = () => {
             <Clear />
           </Button>
           <Button
-            aria-label="Add media"
+            aria-label="Add content"
             shape="circle"
             size="small"
             state={formState !== "success" ? formState : undefined}
-            title="Add media"
+            title="Add content"
             onClick={openDialog}
           >
             <Add />
           </Button>
           <Button
             aria-label="Submit question"
+            disabled={!textareaValue.trim()}
             shape="circle"
             size="small"
             state={formState !== "success" ? formState : undefined}

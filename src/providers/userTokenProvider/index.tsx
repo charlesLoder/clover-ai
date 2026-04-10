@@ -105,6 +105,16 @@ export class UserTokenProvider extends BaseProvider {
               return { type: "image", image: c.content.src };
             }
 
+            if (c.type === "annotation") {
+              return {
+                type: "text",
+                text: dedent`
+                ## Annotation Content
+                The user has shared the following annotation content:
+                ${c.content.content}`,
+              };
+            }
+
             const prevMessages = messages.slice(0, index);
             const lastUserMessage = prevMessages.findLast((m) => m.role === "user");
             let context = "";
@@ -122,25 +132,6 @@ export class UserTokenProvider extends BaseProvider {
                 serializeConfigPresentation3,
               );
 
-              const annotationTexts: string[] = [];
-              const traverse = new Traverse({
-                annotation: [
-                  (a) => {
-                    if (
-                      a.body &&
-                      typeof a.body === "object" &&
-                      "type" in a.body &&
-                      a.body.type === "TextualBody" &&
-                      a.body.value
-                    ) {
-                      annotationTexts.push(a.body.value);
-                    }
-                  },
-                ],
-              });
-
-              traverse.traverseCanvas(canvas);
-
               // prettier-ignore
               context = dedent.withOptions({ alignValues: true })`
               ## Context
@@ -148,8 +139,7 @@ export class UserTokenProvider extends BaseProvider {
               Use this information if possible to inform your answer.
               
               ### Canvas${canvas.label ? `
-              - Label: ${getLabelByUserLanguage(canvas.label)[0]}` : ""}${annotationTexts.length ? `
-              - Annotations: ${annotationTexts.join(", ")}` : ""}
+              - Label: ${getLabelByUserLanguage(canvas.label)[0]}` : ""}
               `;
             }
 

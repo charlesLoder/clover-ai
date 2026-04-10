@@ -1,5 +1,6 @@
 import type { Message as IMessage } from "@types";
 import { forwardRef } from "react";
+import { AnnotationContent } from "../AnnotationContent";
 import { MediaContent } from "../MediaContent";
 import { TextContent } from "../TextContent";
 import style from "./style.module.css";
@@ -19,11 +20,18 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(({ message }, re
       )}
       {message.role === "user" &&
         message.content.map((content, index) => {
-          return content.type === "text" ? (
-            <TextContent key={index} role={message.role} textContent={content} type="text" />
-          ) : content.type === "media" ? (
-            <MediaContent content={content} key={index} role={message.role} />
-          ) : null;
+          switch (content.type) {
+            case "text":
+              return (
+                <TextContent key={index} role={message.role} textContent={content} type="text" />
+              );
+            case "media":
+              return <MediaContent content={content} key={index} role={message.role} />;
+            case "annotation":
+              return <AnnotationContent content={content} key={index} role={message.role} />;
+            default:
+              return null;
+          }
         })}
     </div>
   );

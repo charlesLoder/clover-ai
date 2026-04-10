@@ -10,6 +10,36 @@
   font-style: italic;
 }
 
+.tabsContainer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.tabsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-space-2);
+  padding-inline-end: var(--clover-ai-space-4);
+}
+
+.tabButton {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.tabDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-space-4);
+  border-left: 1px solid var(--clover-ai-colors-primary);
+  padding-inline: var(--clover-ai-space-4);
+  overflow-wrap: anywhere;
+
+  * {
+    margin: 0;
+  }
+}
+
 .contentContainer {
   container-name: content-container;
   container-type: inline-size;
@@ -23,4 +53,52 @@
   figcaption {
     --figure-caption-font-size: var(--clover-ai-sizes-3);
   }
+}
+
+.emptyMessage {
+  color: var(--clover-ai-colors-text-secondary);
+  font-style: italic;
+}
+
+.annotationsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-space-3);
+}
+
+.annotationItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-space-2);
+}
+
+.annotationLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--clover-ai-space-2);
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    margin-top: var(--clover-ai-space-1);
+  }
+}
+
+.annotationPreview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clover-ai-space-1);
+}
+
+.annotationContent {
+  font-size: var(--clover-ai-sizes-3);
+  line-height: 1.4;
+
+  p {
+    margin: 0;
+  }
+}
+
+.annotationRegion {
+  font-size: var(--clover-ai-sizes-2);
+  color: var(--clover-ai-colors-text-secondary);
 }
