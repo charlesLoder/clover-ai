@@ -1,0 +1,58 @@
+.annotationContent {
+  background-color: var(--clover-ai-colors-accentAlt);
+  border-radius: 0.5rem;
+  color: var(--clover-ai-colors-secondary);
+  cursor: pointer;
+  padding: 0.75rem;
+  width: fit-content;
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.header svg {
+  height: 1rem;
+  width: 1rem;
+}
+
+.label {
+  font-size: 0.75rem;
+}
+
+.body {
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.body p {
+  margin: 0;
+}
+
+.annotationContent:not(.expanded) {
+  padding: 0.5rem;
+}
+
+.annotationContent:not(.expanded) .header {
+  gap: 0.25rem;
+}
+
+.annotationContent:not(.expanded) .header svg {
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
+.annotationContent.expanded .body {
+  animation: fadeIn 100ms ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
