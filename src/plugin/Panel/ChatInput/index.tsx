@@ -113,7 +113,7 @@ export const ChatInput: FC = () => {
           }
         }}
       >
-        <div className="selected-media">
+        <div className="selected-content">
           {state.selectedMedia.length ? (
             state.selectedMedia.map((media, index) => <SelectedMedia key={index} media={media} />)
           ) : (
