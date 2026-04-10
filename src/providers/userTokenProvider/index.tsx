@@ -105,6 +105,16 @@ export class UserTokenProvider extends BaseProvider {
               return { type: "image", image: c.content.src };
             }
 
+            if (c.type === "annotation") {
+              return {
+                type: "text",
+                text: dedent`
+                ## Annotation Content
+                The user has shared the following annotation content:
+                ${c.content.content}`,
+              };
+            }
+
             const prevMessages = messages.slice(0, index);
             const lastUserMessage = prevMessages.findLast((m) => m.role === "user");
             let context = "";
