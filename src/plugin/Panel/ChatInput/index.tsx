@@ -18,8 +18,8 @@ export const ChatInput: FC = () => {
     dispatch({ type: "setConversationState", conversationState: "idle" });
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
+    if (e) e.preventDefault();
     const input = textareaValue.trim();
 
     if (!input) {
@@ -84,6 +84,12 @@ export const ChatInput: FC = () => {
   const PromptInputButtons = state?.provider?.PromptInputButtons?.bind(state.provider) ?? null; // bind `this`;
   return (
     <form
+      onKeyDown={(e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          e.preventDefault();
+          handleSubmit();
+        }
+      }}
       onSubmit={async (e) => {
         handleSubmit(e);
       }}
