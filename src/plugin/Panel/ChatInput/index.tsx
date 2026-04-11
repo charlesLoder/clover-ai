@@ -172,7 +172,7 @@ export const ChatInput: FC = () => {
           })}
         </div>
         <div className="controls">
-          {PromptInputButtons && <PromptInputButtons />}
+          {PromptInputButtons && <PromptInputButtons disabled={state.conversationState === "assistant_responding"} />}
           <Button
             aria-label="Clear conversation"
             shape="circle"

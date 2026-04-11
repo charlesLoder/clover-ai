@@ -136,7 +136,7 @@ export abstract class BaseProvider {
   /**
    * A component that providers can implement to add buttons to the Prompt Input area, extending functionality.
    */
-  PromptInputButtons(): JSX.Element & { props: { children: (typeof Button)[] } } {
+  PromptInputButtons(_props: { disabled?: boolean }): JSX.Element & { props: { children: (typeof Button)[] } } {
     return <></>;
   }
 

@@ -337,7 +337,9 @@ export class UserTokenProvider extends BaseProvider {
     }
   }
 
-  PromptInputButtons() {
+  PromptInputButtons(props: {
+    disabled?: boolean;
+  }): JSX.Element & { props: { children: (typeof Button)[] } } {
     /* eslint-disable react-hooks/rules-of-hooks */
     const dialogRef = useRef<HTMLDialogElement>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -426,6 +428,7 @@ export class UserTokenProvider extends BaseProvider {
           size="small"
           title="Tasks"
           type="button"
+          disabled={props.disabled}
           onClick={openDialog}
         >
           <BulletList />
