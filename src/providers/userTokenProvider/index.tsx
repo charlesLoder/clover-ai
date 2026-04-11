@@ -424,11 +424,11 @@ export class UserTokenProvider extends BaseProvider {
         </Dialog>
         <Button
           aria-label="Tasks"
+          disabled={props.disabled}
           shape="circle"
           size="small"
           title="Tasks"
           type="button"
-          disabled={props.disabled}
           onClick={openDialog}
         >
           <BulletList />
