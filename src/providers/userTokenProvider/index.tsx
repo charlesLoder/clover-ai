@@ -337,7 +337,9 @@ export class UserTokenProvider extends BaseProvider {
     }
   }
 
-  PromptInputButtons() {
+  PromptInputButtons(props: {
+    disabled?: boolean;
+  }): JSX.Element & { props: { children: (typeof Button)[] } } {
     /* eslint-disable react-hooks/rules-of-hooks */
     const dialogRef = useRef<HTMLDialogElement>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -422,6 +424,7 @@ export class UserTokenProvider extends BaseProvider {
         </Dialog>
         <Button
           aria-label="Tasks"
+          disabled={props.disabled}
           shape="circle"
           size="small"
           title="Tasks"
