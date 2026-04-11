@@ -1,6 +1,6 @@
 import { Button, PromptInput } from "@components";
 import { usePlugin } from "@context";
-import { Add, ArrowUp, Clear } from "@icons";
+import { Add, ArrowUp, Clear, Export } from "@icons";
 import { UserMessage } from "@types";
 import type { FC } from "react";
 import { useState } from "react";
@@ -81,6 +81,61 @@ export const ChatInput: FC = () => {
     dispatch({ type: "setMediaDialogState", state: "open" });
   }
 
+  function exportConversation() {
+    const title = state.manifest.label?.en?.[0] ?? state.manifest.id;
+    const exportDate = new Date().toISOString();
+
+    let markdown = `# ${title}\n\n`;
+    markdown += `- **Name**: ${state.manifest.label?.en?.[0] ?? "N/A"}\n`;
+    markdown += `- **Manifest URI**: ${state.manifest.id}\n`;
+    markdown += `- **Exported at**: ${exportDate}\n\n`;
+
+    for (const message of state.messages) {
+      switch (message.role) {
+        case "user": {
+          markdown += `## User Message\n\n`;
+          for (const content of message.content) {
+            switch (content.type) {
+              case "text":
+                markdown += `${content.content}\n\n`;
+                break;
+              case "annotation":
+                markdown += `### Annotation\n\n${content.content.content}\n\n`;
+                break;
+              case "media":
+                markdown += `### Media\n\n[${content.content?.caption ?? "IIIF Image"}](${content.content.src})\n\n`;
+                break;
+            }
+          }
+          break;
+        }
+        case "assistant": {
+          markdown += `## Assistant Message\n\n`;
+          switch (message.type) {
+            case "tool-call":
+              markdown += `### Tool Calls\n\n`;
+              markdown += `**${message.content.tool_name}**: ${message.content.content}\n\n`;
+              break;
+            case "response":
+              markdown += `### Response\n\n${message.content.content}\n\n`;
+              break;
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    }
+
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9]/gi, "_")}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   const PromptInputButtons = state?.provider?.PromptInputButtons?.bind(state.provider) ?? null; // bind `this`;
   return (
     <form
@@ -137,6 +192,17 @@ export const ChatInput: FC = () => {
             onClick={openDialog}
           >
             <Add />
+          </Button>
+          <Button
+            aria-label="Export conversation"
+            disabled={state.messages.filter((m) => m.role !== "system").length === 0}
+            shape="circle"
+            size="small"
+            state={formState !== "success" ? formState : undefined}
+            title="Export conversation"
+            onClick={exportConversation}
+          >
+            <Export />
           </Button>
           <Button
             aria-label="Submit question"
