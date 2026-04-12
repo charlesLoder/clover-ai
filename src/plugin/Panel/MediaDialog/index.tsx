@@ -253,11 +253,11 @@ const Paintings: FC<{ canvas: Canvas }> = ({ canvas }) => {
         <ImageSelect
           figcaption={m.caption}
           imgObjectFit="cover"
+          key={`painting-${m.id}`}
+          src={m.src}
           initialState={
             isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"
           }
-          key={`painting-${m.id}`}
-          src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
         />
       ))}
@@ -313,11 +313,11 @@ const Placeholder: FC<{ placeholder: NonNullable<Canvas["placeholderCanvas"]> }>
         <ImageSelect
           figcaption={m.caption}
           imgObjectFit="cover"
+          key={`placeholder-${m.id}`}
+          src={m.src}
           initialState={
             isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"
           }
-          key={`placeholder-${m.id}`}
-          src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
         />
       ))}
