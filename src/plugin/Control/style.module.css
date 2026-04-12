@@ -1,14 +1,55 @@
 .pluginButton {
+  position: relative;
+  height: 2rem;
   width: 2rem;
-  margin: 0px 0px 0px 0.618rem;
+  margin: 0 0 0 0.618rem;
   cursor: pointer;
   border: 0;
-  border-radius: 100%;
+  border-radius: 2rem;
   color: var(--colors-secondary, #000);
   background-color: var(--colors-primary, #fff);
+
+  --transition-time: 200ms;
+  --transition-function: ease-in-out;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 40%;
+    right: 28%;
+    height: 1px;
+    border-radius: 1px;
+    /* background-color: hotpink; */
+    background-color: var(--colors-secondary, #000);
+    width: 0;
+    transition: width var(--transition-time) var(--transition-function);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 48%;
+    right: 28%;
+    height: 1px;
+    border-radius: 1px;
+    background-color: var(--colors-secondary, #000);
+    width: 0;
+    transition: width calc(var(--transition-time) + 50ms) var(--transition-function);
+  }
 
   &:hover {
     border-color: var(--colors-accent);
     background-color: var(--colors-accent);
+
+    &::before {
+      width: 0.85rem;
+    }
+    &::after {
+      width: 0.6rem;
+    }
+  }
+
+  @media (max-width: 575px) {
+    margin: 0 0 0.618rem 0;
   }
 }

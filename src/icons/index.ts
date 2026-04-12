@@ -1,6 +1,7 @@
 export { Add } from "./Add";
 export { ArrowUp } from "./ArrowUp";
 export { BulletList } from "./BulletList";
+export { ChatBubble } from "./ChatBubble";
 export { Clear } from "./Clear";
 export { Close } from "./Close";
 export { Export } from "./Export";
