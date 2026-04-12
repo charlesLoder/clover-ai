@@ -48,6 +48,16 @@
 }
 
 /* Style variants */
+.button[data-variant="accent"] {
+  --button-background-color: var(--clover-ai-colors-accent);
+  --button-border-color: var(--clover-ai-colors-accent);
+
+  &:focus,
+  &:hover {
+    --button-border-color: var(--clover-ai-colors-accentAlt);
+  }
+}
+
 .button[data-variant="secondary"] {
   --button-color: var(--clover-ai-colors-primary);
   --button-background-color: var(--clover-ai-colors-secondaryMuted);
@@ -60,17 +70,24 @@
 }
 
 .button[data-variant="ghost"] {
+  --button-border-color: transparent;
   --button-background-color: transparent;
   --button-color: inherit;
 
-  &:focus,
-  &:hover {
-    --button-background-color: color-mix(
+  &:focus:not(:disabled),
+  &:hover:not(:disabled) {
+    --ghost-hover-background-color: color-mix(
       in srgb,
       var(--clover-ai-colors-accentMuted) 10%,
       transparent
     );
-    --button-border-color: var(--clover-ai-colors-accentAlt);
+    --button-background-color: var(--ghost-hover-background-color);
+  }
+
+  &[data-variant="ghost"]:disabled {
+    --button-border-color: transparent;
+    --button-background-color: transparent;
+    --button-color: var(--clover-ai-colors-secondaryMuted);
   }
 }
 
@@ -110,11 +127,12 @@
 .button:disabled,
 .button[data-state="loading"] {
   cursor: not-allowed;
-  --button-background-color: var(--clover-ai-colors-secondaryAlt);
+  --button-background-color: var(--clover-ai-colors-secondaryMuted);
   --button-border-color: var(--clover-ai-colors-secondaryMuted);
 
   &:focus,
   &:hover {
+    --button-background-color: var(--clover-ai-colors-secondaryMuted);
     --button-border-color: var(--clover-ai-colors-secondaryMuted);
   }
 }

@@ -172,13 +172,16 @@ export const ChatInput: FC = () => {
           })}
         </div>
         <div className="controls">
-          {PromptInputButtons && <PromptInputButtons disabled={state.conversationState === "assistant_responding"} />}
+          {PromptInputButtons && (
+            <PromptInputButtons disabled={state.conversationState === "assistant_responding"} />
+          )}
           <Button
             aria-label="Clear conversation"
             shape="circle"
             size="small"
             state={formState !== "success" ? formState : undefined}
             title="Clear conversation"
+            variant="ghost"
             onClick={clearConversation}
           >
             <Clear />
@@ -189,6 +192,7 @@ export const ChatInput: FC = () => {
             size="small"
             state={formState !== "success" ? formState : undefined}
             title="Add content"
+            variant="ghost"
             onClick={openDialog}
           >
             <Add />
@@ -200,6 +204,7 @@ export const ChatInput: FC = () => {
             size="small"
             state={formState !== "success" ? formState : undefined}
             title="Export conversation"
+            variant="ghost"
             onClick={exportConversation}
           >
             <Export />
@@ -212,6 +217,7 @@ export const ChatInput: FC = () => {
             state={formState !== "success" ? formState : undefined}
             title="Submit question"
             type="submit"
+            variant="accent"
           >
             <ArrowUp />
           </Button>
