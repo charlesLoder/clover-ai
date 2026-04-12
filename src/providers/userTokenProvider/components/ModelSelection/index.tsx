@@ -19,9 +19,7 @@ export function ModelSelection({ handleBack, handleClick, models }: Props) {
           </Button>
         ))}
         <div>
-          <Button variant="ghost" onClick={handleBack}>
-            Back
-          </Button>
+          <Button onClick={handleBack}>Back</Button>
         </div>
       </div>
     </div>

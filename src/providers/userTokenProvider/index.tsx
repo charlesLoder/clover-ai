@@ -346,6 +346,7 @@ export class UserTokenProvider extends BaseProvider {
     const [SelectedTaskComponent, setSelectedTaskComponent] = useState<React.ComponentType | null>(
       null,
     );
+    const [selectedTask, setSelectedTask] = useState("");
 
     useEffect(() => {
       if (isOpen && dialogRef.current) {
@@ -406,8 +407,11 @@ export class UserTokenProvider extends BaseProvider {
                   className={styles.taskButton}
                   key={task.name}
                   size="small"
-                  variant="primary"
-                  onClick={() => setSelectedTaskComponent(() => task.component)}
+                  variant={selectedTask === task.name ? "primary" : "ghost"}
+                  onClick={() => {
+                    setSelectedTaskComponent(() => task.component);
+                    setSelectedTask(task.name);
+                  }}
                 >
                   {task.name}
                 </Button>
@@ -525,10 +529,10 @@ export class UserTokenProvider extends BaseProvider {
           onChange={(e) => setInputValue(e.target.value)}
         />
         <div className={styles.buttonGroup}>
-          <Button type="submit">Submit</Button>
-          <Button variant="ghost" onClick={() => setSelectedModel(null)}>
-            Back
+          <Button type="submit" variant="accent">
+            Submit
           </Button>
+          <Button onClick={() => setSelectedModel(null)}>Back</Button>
         </div>
       </form>
     );
@@ -778,7 +782,7 @@ export class UserTokenProvider extends BaseProvider {
               }
             }}
           />
-          <Button disabled={isButtonDisabled} onClick={startTask}>
+          <Button disabled={isButtonDisabled} variant="accent" onClick={startTask}>
             {isButtonDisabled ? "Provide context to enable" : "Create Annotation"}
           </Button>
         </>
@@ -944,7 +948,9 @@ export class UserTokenProvider extends BaseProvider {
               setInputValue(currentTarget.value.trim());
             }}
           />
-          <Button onClick={startTask}>Start Transcription</Button>
+          <Button variant="accent" onClick={startTask}>
+            Start Transcription
+          </Button>
         </>
       );
     }
