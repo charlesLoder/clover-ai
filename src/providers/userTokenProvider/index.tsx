@@ -429,6 +429,7 @@ export class UserTokenProvider extends BaseProvider {
           size="small"
           title="Tasks"
           type="button"
+          variant="ghost"
           onClick={openDialog}
         >
           <BulletList />

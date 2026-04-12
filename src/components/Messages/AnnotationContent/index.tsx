@@ -1,7 +1,7 @@
+import { TextFile } from "@icons";
 import { AnnotationContent as IAnnotationContent, Role } from "@types";
 import type { FC } from "react";
 import { useState } from "react";
-import { TextFile } from "@icons";
 import style from "./style.module.css";
 
 export interface AnnotationContentProps {
@@ -26,12 +26,7 @@ export const AnnotationContent: FC<AnnotationContentProps> = ({ content, role })
         <TextFile />
         <span className={style.label}>{expanded ? "Annotation" : "Show more"}</span>
       </div>
-      {expanded && (
-        <div
-          className={style.body}
-          dangerouslySetInnerHTML={{ __html: rawContent }}
-        />
-      )}
+      {expanded && <div className={style.body} dangerouslySetInnerHTML={{ __html: rawContent }} />}
     </div>
   );
 };

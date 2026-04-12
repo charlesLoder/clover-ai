@@ -162,7 +162,10 @@ describe("pluginReducer", () => {
 
   it("should handle setSelectedContent", () => {
     const selectedContent: SelectedContent[] = [
-      { type: "media", content: { type: "image" as const, id: "media-1", src: "http://example.com/img.png" } },
+      {
+        type: "media",
+        content: { type: "image" as const, id: "media-1", src: "http://example.com/img.png" },
+      },
       { type: "annotation", content: { id: "annotation-1", content: "<p>Test annotation</p>" } },
     ];
     const action: PluginContextActions = { type: "setSelectedContent", selectedContent };

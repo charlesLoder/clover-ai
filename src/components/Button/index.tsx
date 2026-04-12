@@ -6,7 +6,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   shape?: "pill" | "circle";
   size?: "small" | "medium" | "large";
   state?: "idle" | "loading" | "error";
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "accent" | "primary" | "secondary" | "ghost" | "danger";
 }
 
 /**

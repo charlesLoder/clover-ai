@@ -34,6 +34,14 @@ export const Primary: Story = {
   },
 };
 
+export const Accent: Story = {
+  name: "Variant / Accent",
+  args: {
+    variant: "accent",
+    children: "Click me",
+  },
+};
+
 export const Secondary: Story = {
   name: "Variant / Secondary",
   args: {

@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run formatting
-        run: npm run format
+        run: npm run format:check
 
   lint:
     runs-on: ubuntu-latest
