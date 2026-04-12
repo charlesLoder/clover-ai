@@ -1,3 +1,4 @@
+import { ChatBubble } from "@icons";
 import type { Plugin as CloverPlugin } from "@samvera/clover-iiif";
 import styles from "./style.module.css";
 
@@ -21,8 +22,8 @@ export function PluginControl(props: CloverPlugin) {
   }
 
   return (
-    <button className={styles.pluginButton} onClick={clickHandler}>
-      Ai
+    <button className={styles.pluginButton} title="AI Chat" onClick={clickHandler}>
+      <ChatBubble />
     </button>
   );
 }
