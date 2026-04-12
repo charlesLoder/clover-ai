@@ -2,10 +2,10 @@ import { Button, Dialog, Heading, ImageSelect } from "@components";
 import { usePlugin } from "@context";
 import { serializeConfigPresentation3, Traverse } from "@iiif/parser";
 import type {
-  Annotation as IIIFAnnotation,
   Canvas,
   ContentResource,
   EmbeddedResource,
+  Annotation as IIIFAnnotation,
   SpecificResource,
 } from "@iiif/presentation-3";
 import { Annotation, Media, SelectedContent } from "@types";
@@ -13,14 +13,22 @@ import { getLabelByUserLanguage, updateIIIFImageRequestURI } from "@utils";
 import { FC, useEffect, useRef, useState } from "react";
 import style from "./style.module.css";
 
-function isEmbeddedResource(
-  body: unknown,
-): body is EmbeddedResource {
-  return typeof body === "object" && body !== null && "type" in body && (body as EmbeddedResource).type === "TextualBody";
+function isEmbeddedResource(body: unknown): body is EmbeddedResource {
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "type" in body &&
+    (body as EmbeddedResource).type === "TextualBody"
+  );
 }
 
 function isSpecificResource(body: unknown): body is SpecificResource {
-  return typeof body === "object" && body !== null && "type" in body && (body as SpecificResource).type === "SpecificResource";
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "type" in body &&
+    (body as SpecificResource).type === "SpecificResource"
+  );
 }
 
 function getTextualBodyValue(body: unknown): string | undefined {
@@ -46,7 +54,11 @@ function getTextualBodyValue(body: unknown): string | undefined {
     return getTextualBodyValue(body.source);
   }
 
-  if (typeof body === "object" && "value" in body && typeof (body as { value: unknown }).value === "string") {
+  if (
+    typeof body === "object" &&
+    "value" in body &&
+    typeof (body as { value: unknown }).value === "string"
+  ) {
     return (body as { value: string }).value;
   }
 
@@ -69,7 +81,9 @@ function isAnnotationInSelectedContent(
   annotation: Annotation,
   selectedContent: SelectedContent[],
 ): boolean {
-  return selectedContent.some((item) => item.type === "annotation" && item.content.id === annotation.id);
+  return selectedContent.some(
+    (item) => item.type === "annotation" && item.content.id === annotation.id,
+  );
 }
 
 function handleSelectedMedia(
@@ -172,7 +186,9 @@ const CurrentView = () => {
           imgObjectFit="contain"
           src={fragmentMedia.src}
           initialState={
-            isMediaInSelectedContent(fragmentMedia, state.selectedContent) ? "selected" : "unselected"
+            isMediaInSelectedContent(fragmentMedia, state.selectedContent)
+              ? "selected"
+              : "unselected"
           }
           onSelectionChange={(selected) => handleAddMedia(selected, fragmentMedia)}
         />
@@ -237,7 +253,9 @@ const Paintings: FC<{ canvas: Canvas }> = ({ canvas }) => {
         <ImageSelect
           figcaption={m.caption}
           imgObjectFit="cover"
-          initialState={isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"}
+          initialState={
+            isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"
+          }
           key={`painting-${m.id}`}
           src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
@@ -295,7 +313,9 @@ const Placeholder: FC<{ placeholder: NonNullable<Canvas["placeholderCanvas"]> }>
         <ImageSelect
           figcaption={m.caption}
           imgObjectFit="cover"
-          initialState={isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"}
+          initialState={
+            isMediaInSelectedContent(m, state.selectedContent) ? "selected" : "unselected"
+          }
           key={`placeholder-${m.id}`}
           src={m.src}
           onSelectionChange={(selected) => handleAddMedia(selected, m)}
@@ -383,7 +403,9 @@ const Annotations: FC<{ canvas: Canvas }> = ({ canvas }) => {
   function handleAddAnnotation(selected: boolean, annotation: Annotation) {
     const resources: SelectedContent[] = selected
       ? [...state.selectedContent, { type: "annotation", content: annotation }]
-      : state.selectedContent.filter((item) => !(item.type === "annotation" && item.content.id === annotation.id));
+      : state.selectedContent.filter(
+          (item) => !(item.type === "annotation" && item.content.id === annotation.id),
+        );
 
     dispatch({ type: "setSelectedContent", selectedContent: resources });
   }
